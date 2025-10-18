@@ -62,7 +62,6 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
                 CheckAdminAccess::class,
             ])
-            ->authGuard('sanctum')
             ->userMenuItems([
                 'profile' => MenuItem::make()
                     ->label(fn (): string => auth()->user()->full_name)
