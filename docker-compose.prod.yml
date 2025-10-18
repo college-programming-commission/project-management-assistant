@@ -216,6 +216,9 @@ volumes:
     db-data:
         name: project-management-db-data
         driver: local
+    node-modules:
+        name: project-management-node-modules
+        driver: local
     redis-data:
         name: project-management-redis-data
         driver: local
