@@ -104,6 +104,7 @@ class GoogleAuthController extends Controller
                     $user->update([
                         'google_id' => $googleUser->getId(),
                         'avatar' => $user->avatar ?: $googleUser->getAvatar(),
+                        'email_verified_at' => $user->email_verified_at ?: now(), // Автоматична верифікація при вході через Google
                     ]);
                 }
 

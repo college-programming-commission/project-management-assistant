@@ -18,6 +18,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
+        
+        // Додати middleware для примусового використання HTTP схеми
+        $middleware->web(append: [
+            \Alison\ProjectManagementAssistant\Http\Middleware\ForceHttpScheme::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

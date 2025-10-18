@@ -26,6 +26,9 @@ class AppServiceProvider extends ServiceProvider
     {
         // Використовувати Tailwind CSS для пагінації
         Paginator::useTailwind();
-        URL::forceScheme('https');
+        
+        // Примусово використовувати HTTP схему для генерації URL
+        URL::forceScheme('http');
+        URL::forceRootUrl('http://localhost:8080');
     }
 }

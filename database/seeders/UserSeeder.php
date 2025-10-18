@@ -15,21 +15,29 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Створення адміністратора
-        $admin = User::query()->create([
-            'email' => 'alisaadamus.aa@gmail.com',
-            'email_verified_at' => now(),
-            'password' => Hash::make('12345678'),
-            'first_name' => 'Alisa',
-            'last_name' => 'Adamus',
-            'middle_name' => null,
-            'description' => null,
-            'avatar' => null,
-            'course_number' => null,
-        ]);
-
-        // Призначення ролі адміністратора
-        $admin->assignRole('admin');
+        // ПРИМІТКА: Головний адміністратор тепер створюється в AdminSeeder
+        // який завжди запускається при деплої через entrypoint.sh
+        
+        // Створення додаткового тестового адміністратора (тільки для development)
+        if (app()->environment('local', 'development')) {
+            $admin = User::query()->firstOrCreate(
+                ['email' => 'alisaadamus.aa@gmail.com'],
+                [
+                    'email_verified_at' => now(),
+                    'password' => Hash::make('12345678'),
+                    'first_name' => 'Alisa',
+                    'last_name' => 'Adamus',
+                    'middle_name' => null,
+                    'description' => 'Тестовий адміністратор',
+                    'avatar' => null,
+                    'course_number' => null,
+                ]
+            );
+            
+            if (!$admin->hasRole('admin')) {
+                $admin->assignRole('admin');
+            }
+        }
 
         // Масиви українських імен
         $teacherNames = [
