@@ -30,6 +30,13 @@ while ! nc -z db 5432; do
 done
 echo "Database is ready."
 
+# 2.1. Чекаємо на Redis
+echo "Waiting for Redis to be ready..."
+while ! nc -z redis 6379; do
+  sleep 0.1
+done
+echo "Redis is ready."
+
 # 3. Генеруємо ключ (якщо потрібно)
 if [ -z "$APP_KEY" ]; then
     echo "Generating application key..."
