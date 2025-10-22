@@ -83,7 +83,6 @@ RUN npm ci \
 # Stage 4: Final application image
 # =============================================================================
 FROM base AS app
-ARG INSTALL_DEV=true
 WORKDIR /var/www/html
 
 COPY --from=vendor /var/www/html/vendor/ /var/www/html/vendor/
@@ -98,37 +97,10 @@ RUN mkdir -p /var/www/html/storage/app/public \
              /var/www/html/storage/logs \
              /var/www/html/bootstrap/cache
 
-# === ПОЧАТОК "ЯДЕРНОГО" ВИПРАВЛЕННЯ ===
-# "Обдурюємо" Artisan, щоб він не намагався підключитися до БД/Redis під час збірки.
-ENV CACHE_DRIVER=file
-ENV DB_CONNECTION=sqlite
-ENV QUEUE_CONNECTION=sync
-ENV SESSION_DRIVER=file
-RUN touch /var/www/html/database/database.sqlite
+# We do NOT run any 'artisan' commands here.
+# They will be executed by entrypoint.sh *after* the DB is ready.
 
-# "Брутально" видаляємо кеш, оскільки `artisan optimize:clear` "падає"
-RUN rm -f /var/www/html/bootstrap/cache/*.php
-
-# "Запікаємо" асети та посилання.
-# (Тепер це не "впаде", оскільки AdminPanelProvider безпечний)
-RUN php -d opcache.enable=0 artisan storage:link
-RUN php -d opcache.enable=0 artisan filament:assets
-
-# "Запікаємо" кеш конфігурації (SPA, S3 URL-и тощо)
-RUN if [ "$INSTALL_DEV" = "false" ]; then \
-        php -d opcache.enable=0 artisan optimize; \
-    else \
-        echo "Skipping optimization in dev build"; \
-    fi
-
-# Очищуємо тимчасові змінні, щоб вони не заважали .env (з Dokploy) під час запуску
-ENV CACHE_DRIVER=
-ENV DB_CONNECTION=
-ENV QUEUE_CONNECTION=
-ENV SESSION_DRIVER=
-# === КІНЕЦЬ "ЯДЕРНОГО" ВИПРАВЛЕННЯ ===
-
-# Встановлюємо права *після* генерації всіх файлів
+# Set proper permissions
 RUN chown -R www-data:www-data \
         /var/www/html/storage \
         /var/www/html/bootstrap/cache \
