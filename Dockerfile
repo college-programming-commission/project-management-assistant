@@ -137,7 +137,7 @@ RUN mkdir -p /var/www/html/storage/app/public \
              /var/www/html/storage/framework/views \
              /var/www/html/storage/framework/cache/data \
              /var/www/html/storage/logs \
-             /var/www/html/bootstrap/cache \
+             /var/www/html/bootstrap/cache
 
 # Set proper permissions *after* all files are generated
 RUN chown -R www-data:www-data \
