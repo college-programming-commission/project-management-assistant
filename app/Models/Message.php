@@ -2,25 +2,19 @@
 
 namespace Alison\ProjectManagementAssistant\Models;
 
-use Database\Factories\ProjectFactory;
+use Alison\ProjectManagementAssistant\Services\MarkdownService;
 use Database\Factories\MessageFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Message extends Model
 {
     /** @use HasFactory<MessageFactory> */
     use HasFactory, HasUlids;
-    protected $fillable = [
-        'project_id',
-        'sender_id',
-        'message',
-        'is_read',
-    ];
 
     public function project(): BelongsTo
     {
@@ -58,7 +52,7 @@ class Message extends Model
                     return '';
                 }
 
-                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+                $markdownService = app(MarkdownService::class);
                 return $markdownService->toHtml($this->message);
             }
         );
@@ -75,7 +69,7 @@ class Message extends Model
                     return '';
                 }
 
-                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+                $markdownService = app(MarkdownService::class);
                 return $markdownService->getPreview($this->message, 100);
             }
         );

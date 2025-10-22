@@ -3,14 +3,15 @@
 namespace Alison\ProjectManagementAssistant\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Alison\ProjectManagementAssistant\Services\MarkdownService;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -22,31 +23,16 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements FilamentUser
 {
     use HasApiTokens;
-    use HasUlids;
     /** @use HasFactory<UserFactory> */
     use HasFactory;
+
     use HasProfilePhoto;
+
+    use HasPushSubscriptions;
+    use HasRoles;
+    use HasUlids;
     use Notifiable;
     use TwoFactorAuthenticatable;
-    use HasRoles;
-    use HasPushSubscriptions;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'email',
-        'password',
-        'google_id',
-        'first_name',
-        'last_name',
-        'middle_name',
-        'description',
-        'avatar',
-        'course_number',
-    ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -72,20 +58,6 @@ class User extends Authenticatable implements FilamentUser
         'name',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
-
-
     public function supervisors(): HasMany
     {
         return $this->hasMany(Supervisor::class, 'supervisors');
@@ -108,10 +80,10 @@ class User extends Authenticatable implements FilamentUser
 
     public function scopeByName(Builder $query, string $name): Builder
     {
-        return $query->where(function($q) use ($name) {
-            $q->where('first_name', 'like', '%' . $name . '%')
-              ->orWhere('last_name', 'like', '%' . $name . '%')
-              ->orWhere('middle_name', 'like', '%' . $name . '%');
+        return $query->where(function ($q) use ($name) {
+            $q->where('first_name', 'like', '%'.$name.'%')
+                ->orWhere('last_name', 'like', '%'.$name.'%')
+                ->orWhere('middle_name', 'like', '%'.$name.'%');
         });
     }
 
@@ -127,7 +99,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function scopeByEmailDomain(Builder $query, string $domain): Builder
     {
-        return $query->where('email', 'like', '%' . $domain);
+        return $query->where('email', 'like', '%'.$domain);
     }
 
     public function scopeIsSupervisor(Builder $query): Builder
@@ -156,6 +128,14 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
+     * Отримати ім'я користувача (для сумісності з Filament)
+     */
+    public function getNameAttribute(): string
+    {
+        return $this->getFullNameAttribute();
+    }
+
+    /**
      * Отримати повне ім'я користувача
      */
     public function getFullNameAttribute(): string
@@ -170,14 +150,6 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Отримати ім'я користувача (для сумісності з Filament)
-     */
-    public function getNameAttribute(): string
-    {
-        return $this->getFullNameAttribute();
-    }
-
-    /**
      * Отримати коротке ім'я користувача (прізвище та ініціали)
      */
     public function getShortNameAttribute(): string
@@ -185,14 +157,32 @@ class User extends Authenticatable implements FilamentUser
         $parts = [$this->last_name];
 
         if ($this->first_name) {
-            $parts[] = mb_substr($this->first_name, 0, 1) . '.';
+            $parts[] = mb_substr($this->first_name, 0, 1).'.';
         }
 
         if ($this->middle_name) {
-            $parts[] = mb_substr($this->middle_name, 0, 1) . '.';
+            $parts[] = mb_substr($this->middle_name, 0, 1).'.';
         }
 
         return implode(' ', $parts);
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->hasRole('admin');
+    }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
     }
 
     /**
@@ -206,7 +196,8 @@ class User extends Authenticatable implements FilamentUser
                     return '';
                 }
 
-                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+                $markdownService = app(MarkdownService::class);
+
                 return $markdownService->toHtml($this->description);
             }
         );
@@ -223,14 +214,10 @@ class User extends Authenticatable implements FilamentUser
                     return '';
                 }
 
-                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+                $markdownService = app(MarkdownService::class);
+
                 return $markdownService->getPreview($this->description);
             }
         );
-    }
-
-    public function canAccessPanel(Panel $panel): bool
-    {
-        return $this->hasRole('admin');
     }
 }

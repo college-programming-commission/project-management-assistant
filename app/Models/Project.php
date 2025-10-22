@@ -4,28 +4,19 @@ namespace Alison\ProjectManagementAssistant\Models;
 
 use Database\Factories\ProjectFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Project extends Model
 {
     /** @use HasFactory<ProjectFactory> */
     use HasFactory, HasUlids;
 
-    protected $fillable = [
-        'event_id',
-        'supervisor_id',
-        'assigned_to',
-        'slug',
-        'name',
-        'appendix',
-        'body',
-    ];
     public function event(): BelongsTo
     {
         return $this->belongsTo(Event::class, 'event_id');
@@ -105,9 +96,9 @@ class Project extends Model
 
     public function scopeSearchByNameOrBody(Builder $query, string $search): Builder
     {
-        return $query->where(function($q) use ($search) {
+        return $query->where(function ($q) use ($search) {
             $q->where('name', 'ILIKE', "%$search%")
-              ->orWhere('body', 'ILIKE', "%$search%");
+                ->orWhere('body', 'ILIKE', "%$search%");
         });
     }
 
@@ -144,6 +135,7 @@ class Project extends Model
                 }
 
                 $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+
                 return $markdownService->toHtml($this->body);
             }
         );
@@ -161,6 +153,7 @@ class Project extends Model
                 }
 
                 $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+
                 return $markdownService->getPreview($this->body);
             }
         );
@@ -172,7 +165,7 @@ class Project extends Model
     public function getUnreadMessagesCountAttribute(): int
     {
         $currentUserId = auth()->id();
-        if (!$currentUserId) {
+        if (! $currentUserId) {
             return 0;
         }
 
@@ -195,7 +188,7 @@ class Project extends Model
      */
     public function getEventProjectsCountAttribute(): int
     {
-        if (!$this->event) {
+        if (! $this->event) {
             return 0;
         }
 

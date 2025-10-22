@@ -5,74 +5,56 @@ namespace Alison\ProjectManagementAssistant\Filament\Resources;
 use Alison\ProjectManagementAssistant\Filament\Resources\SupervisorResource\Pages;
 use Alison\ProjectManagementAssistant\Filament\Resources\SupervisorResource\RelationManagers;
 use Alison\ProjectManagementAssistant\Models\Supervisor;
-use Alison\ProjectManagementAssistant\Models\Event;
 use Alison\ProjectManagementAssistant\Models\User;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SupervisorResource extends Resource
 {
     protected static ?string $model = Supervisor::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
-
-    protected static ?string $navigationGroup = 'Управління проектами';
-
-    protected static ?int $navigationSort = 2;
-
-    protected static ?string $modelLabel = 'Керівник';
-
-    protected static ?string $pluralModelLabel = 'Керівники';
-
-    public static function form(Form $form): Form
+    public static function getNavigationIcon(): ?string
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make('Основна інформація')
-                    ->schema([
-                        Forms\Components\Select::make('event_id')
-                            ->label('Подія')
-                            ->relationship('event', 'name')
-                            ->required()
-                            ->searchable()
-                            ->preload(),
+        return 'heroicon-o-academic-cap';
+    }
 
-                        Forms\Components\Select::make('user_id')
-                            ->label('Користувач')
-                            ->relationship('user', 'id')
-                            ->getOptionLabelFromRecordUsing(fn (User $record) => $record->full_name)
-                            ->required()
-                            ->searchable()
-                            ->preload(),
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Управління проектами';
+    }
 
-                        Forms\Components\TextInput::make('slot_count')
-                            ->label('Кількість місць')
-                            ->numeric()
-                            ->minValue(1)
-                            ->required(),
-                    ])
-                    ->columns(2),
+    public static function getNavigationSort(): int
+    {
+        return 2;
+    }
 
-                Forms\Components\Section::make('Додаткова інформація')
-                    ->schema([
-                        Forms\Components\MarkdownEditor::make('note')
-                            ->label('Примітка')
-                            ->maxLength(255)
-                            ->columnSpanFull(),
-                    ]),
-            ]);
+    public static function getModelLabel(): string
+    {
+        return 'Керівник';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Керівники';
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('event.name')
+                TextColumn::make('event.name')
                     ->label('Подія')
                     ->searchable()
                     ->sortable(),
@@ -82,38 +64,38 @@ class SupervisorResource extends Resource
                     ->sortable()
                     ->getStateUsing(fn ($record) => $record->user?->full_name),
 
-                Tables\Columns\TextColumn::make('user.email')
+                TextColumn::make('user.email')
                     ->label('Email')
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('slot_count')
+                TextColumn::make('slot_count')
                     ->label('Кількість місць')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('note')
+                TextColumn::make('note')
                     ->label('Примітка')
                     ->limit(50),
 
-                Tables\Columns\TextColumn::make('projects_count')
+                TextColumn::make('projects_count')
                     ->label('Кількість проектів')
                     ->counts('projects')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label('Створено')
                     ->dateTime('d.m.Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->label('Оновлено')
                     ->dateTime('d.m.Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('event')
+                SelectFilter::make('event')
                     ->label('Подія')
                     ->relationship('event', 'name')
                     ->searchable()
@@ -132,13 +114,13 @@ class SupervisorResource extends Resource
                         $q->where('end_date', '>=', now());
                     })),
 
-                Tables\Filters\Filter::make('slot_count')
+                Filter::make('slot_count')
                     ->label('Кількість місць')
-                    ->form([
-                        Forms\Components\TextInput::make('min_slot_count')
+                    ->schema([
+                        TextInput::make('min_slot_count')
                             ->label('Мінімум місць')
                             ->numeric(),
-                        Forms\Components\TextInput::make('max_slot_count')
+                        TextInput::make('max_slot_count')
                             ->label('Максимум місць')
                             ->numeric(),
                     ])
@@ -154,15 +136,14 @@ class SupervisorResource extends Resource
                             );
                     }),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+            ->toolbarActions([
+                DeleteBulkAction::make(),
             ]);
     }
+
     public static function getRelations(): array
     {
         return [
@@ -177,5 +158,44 @@ class SupervisorResource extends Resource
             'create' => Pages\CreateSupervisor::route('/create'),
             'edit' => Pages\EditSupervisor::route('/{record}/edit'),
         ];
+    }
+
+    public static function form(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                Section::make('Основна інформація')
+                    ->schema([
+                        Select::make('event_id')
+                            ->label('Подія')
+                            ->relationship('event', 'name')
+                            ->required()
+                            ->searchable()
+                            ->preload(),
+
+                        Forms\Components\Select::make('user_id')
+                            ->label('Користувач')
+                            ->relationship('user', 'id')
+                            ->getOptionLabelFromRecordUsing(fn (User $record) => $record->full_name)
+                            ->required()
+                            ->searchable()
+                            ->preload(),
+
+                        TextInput::make('slot_count')
+                            ->label('Кількість місць')
+                            ->numeric()
+                            ->minValue(1)
+                            ->required(),
+                    ])
+                    ->columns(2),
+
+                Section::make('Додаткова інформація')
+                    ->schema([
+                        MarkdownEditor::make('note')
+                            ->label('Примітка')
+                            ->maxLength(255)
+                            ->columnSpanFull(),
+                    ]),
+            ])->columns(1);
     }
 }

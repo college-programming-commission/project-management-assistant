@@ -1,11 +1,11 @@
 # =============================================================================
 # Stage 1: Base image with PHP and system dependencies
 # =============================================================================
-FROM php:8.3-fpm AS base
+FROM php:8.4-fpm AS base
 
 # Metadata
 LABEL maintainer="it_commission_college@uzhnu.edu.ua"
-LABEL description="Project Management Assistant - Base image with PHP 8.3 and dependencies"
+LABEL description="Project Management Assistant - Base image with PHP 8.4 and dependencies"
 
 # Set working directory
 WORKDIR /var/www/html
@@ -55,16 +55,23 @@ RUN pecl install redis \
 # Install Composer from official image
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Optimize PHP for production
-RUN { \
-        echo 'opcache.enable=1'; \
-        echo 'opcache.memory_consumption=256'; \
-        echo 'opcache.interned_strings_buffer=16'; \
-        echo 'opcache.max_accelerated_files=10000'; \
-        echo 'opcache.validate_timestamps=0'; \
-        echo 'opcache.save_comments=1'; \
-        echo 'opcache.fast_shutdown=1'; \
-    } > /usr/local/etc/php/conf.d/opcache.ini
+# Configure PHP opcache
+# For development: opcache disabled for instant file changes
+# For production: opcache enabled for performance
+ARG INSTALL_DEV=true
+RUN if [ "$INSTALL_DEV" = "true" ]; then \
+        echo 'opcache.enable=0' > /usr/local/etc/php/conf.d/opcache.ini; \
+    else \
+        { \
+            echo 'opcache.enable=1'; \
+            echo 'opcache.memory_consumption=256'; \
+            echo 'opcache.interned_strings_buffer=16'; \
+            echo 'opcache.max_accelerated_files=10000'; \
+            echo 'opcache.validate_timestamps=0'; \
+            echo 'opcache.save_comments=1'; \
+            echo 'opcache.fast_shutdown=1'; \
+        } > /usr/local/etc/php/conf.d/opcache.ini; \
+    fi
 
 # =============================================================================
 # Stage 2: Build vendor dependencies
@@ -76,13 +83,24 @@ COPY composer.json composer.lock ./
 COPY database/ database/
 
 # Install composer dependencies
-RUN composer install \
-    --no-dev \
-    --no-interaction \
-    --no-plugins \
-    --no-scripts \
-    --prefer-dist \
-    --optimize-autoloader
+# For development, include dev packages
+ARG INSTALL_DEV=true
+RUN if [ "$INSTALL_DEV" = "true" ]; then \
+        composer install \
+            --no-interaction \
+            --no-plugins \
+            --no-scripts \
+            --prefer-dist \
+            --optimize-autoloader; \
+    else \
+        composer install \
+            --no-dev \
+            --no-interaction \
+            --no-plugins \
+            --no-scripts \
+            --prefer-dist \
+            --optimize-autoloader; \
+    fi
 
 # Copy package files for npm
 COPY package*.json ./

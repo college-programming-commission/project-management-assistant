@@ -2,21 +2,14 @@
 
 namespace Alison\ProjectManagementAssistant\Filament\Pages;
 
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Pages\Page;
-use Filament\Support\Colors\Color;
+use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
+use Filament\Pages\Page;
+use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Cache;
 
 class ColorSettings extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-paint-brush';
-
-    protected static string $view = 'filament.pages.color-settings';
-
-    protected static ?string $navigationGroup = 'Налаштування';
-
     protected static ?string $title = 'Налаштування кольорів';
 
     protected static ?string $navigationLabel = 'Кольори';
@@ -25,6 +18,51 @@ class ColorSettings extends Page
 
     public ?array $data = [];
 
+    protected string $view = 'filament.pages.color-settings';
+
+    public static function getNavigationIcon(): ?string
+    {
+        return 'heroicon-o-paint-brush';
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Налаштування';
+    }
+
+    public function form(Schema $schema): Schema
+    {
+        return $schema
+            ->components([Select::make('primary_color')
+                ->label('Основний колір адмін панелі')
+                ->options(['slate' => 'Сланцевий',
+                    'gray' => 'Сірий',
+                    'zinc' => 'Цинковий',
+                    'neutral' => 'Нейтральний',
+                    'stone' => 'Кам\'яний',
+                    'red' => 'Червоний',
+                    'orange' => 'Помаранчевий',
+                    'amber' => 'Бурштиновий',
+                    'yellow' => 'Жовтий',
+                    'lime' => 'Лаймовий',
+                    'green' => 'Зелений',
+                    'emerald' => 'Смарагдовий',
+                    'teal' => 'Бірюзовий',
+                    'cyan' => 'Блакитний',
+                    'sky' => 'Небесний',
+                    'blue' => 'Синій',
+                    'indigo' => 'Індиго',
+                    'violet' => 'Фіолетовий',
+                    'purple' => 'Пурпурний',
+                    'fuchsia' => 'Фуксія',
+                    'pink' => 'Рожевий',
+                    'rose' => 'Троянда',])
+                ->default('amber')
+                ->required()
+                ->helperText('Перезавантажте сторінку після збереження для застосування змін'),])
+            ->statePath('data');
+    }
+
     public function mount(): void
     {
         $this->form->fill([
@@ -32,49 +70,12 @@ class ColorSettings extends Page
         ]);
     }
 
-    public function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                Forms\Components\Select::make('primary_color')
-                    ->label('Основний колір адмін панелі')
-                    ->options([
-                        'slate' => 'Сланцевий',
-                        'gray' => 'Сірий',
-                        'zinc' => 'Цинковий',
-                        'neutral' => 'Нейтральний',
-                        'stone' => 'Кам\'яний',
-                        'red' => 'Червоний',
-                        'orange' => 'Помаранчевий',
-                        'amber' => 'Бурштиновий',
-                        'yellow' => 'Жовтий',
-                        'lime' => 'Лаймовий',
-                        'green' => 'Зелений',
-                        'emerald' => 'Смарагдовий',
-                        'teal' => 'Бірюзовий',
-                        'cyan' => 'Блакитний',
-                        'sky' => 'Небесний',
-                        'blue' => 'Синій',
-                        'indigo' => 'Індиго',
-                        'violet' => 'Фіолетовий',
-                        'purple' => 'Пурпурний',
-                        'fuchsia' => 'Фуксія',
-                        'pink' => 'Рожевий',
-                        'rose' => 'Троянда',
-                    ])
-                    ->default('amber')
-                    ->required()
-                    ->helperText('Перезавантажте сторінку після збереження для застосування змін'),
-            ])
-            ->statePath('data');
-    }
-
     public function save(): void
     {
         $data = $this->form->getState();
-        
+
         Cache::put('admin_primary_color', $data['primary_color'], now()->addYear());
-        
+
         Notification::make()
             ->title('Налаштування збережено')
             ->body('Колірна схема була успішно оновлена. Перезавантажте сторінку для застосування змін.')

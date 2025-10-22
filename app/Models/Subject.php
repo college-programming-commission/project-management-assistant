@@ -4,24 +4,16 @@ namespace Alison\ProjectManagementAssistant\Models;
 
 use Database\Factories\SubjectFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Subject extends Model
 {
     /** @use HasFactory<SubjectFactory> */
     use HasFactory, HasUlids;
-
-    protected $fillable = [
-        'slug',
-        'name',
-        'course_number',
-        'description',
-        'image',
-    ];
 
     public function categories(): BelongsToMany
     {
@@ -67,6 +59,7 @@ class Subject extends Model
                 }
 
                 $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+
                 return $markdownService->toHtml($this->description);
             }
         );
@@ -84,6 +77,7 @@ class Subject extends Model
                 }
 
                 $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+
                 return $markdownService->getPreview($this->description);
             }
         );

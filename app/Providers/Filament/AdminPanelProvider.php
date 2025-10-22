@@ -2,28 +2,26 @@
 
 namespace Alison\ProjectManagementAssistant\Providers\Filament;
 
-
-use Alison\ProjectManagementAssistant\Filament\Resources\CategoryResource;
-use Alison\ProjectManagementAssistant\Filament\Resources\SubjectResource;
+use Alison\ProjectManagementAssistant\Filament\Pages\ColorSettings;
 use Alison\ProjectManagementAssistant\Http\Middleware\CheckAdminAccess;
+use Filament\Actions\Action;
 use Filament\Http\Middleware\Authenticate;
-use Filament\Navigation\MenuItem;
-
+use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages;
+use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets;
+use Filament\Widgets\AccountWidget;
+use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Laravel\Jetstream\Http\Middleware\AuthenticateSession;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -33,6 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->spa(true, true) // Enable SPA mode with prefetching
             ->login()
             ->colors([
                 'primary' => $this->getPrimaryColor(),
@@ -40,12 +39,13 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'Alison\\ProjectManagementAssistant\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'Alison\\ProjectManagementAssistant\\Filament\\Pages')
             ->pages([
-                Pages\Dashboard::class,
+                Dashboard::class,
+                ColorSettings::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'Alison\\ProjectManagementAssistant\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                AccountWidget::class,
+                FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -63,21 +63,22 @@ class AdminPanelProvider extends PanelProvider
                 CheckAdminAccess::class,
             ])
             ->userMenuItems([
-                'profile' => MenuItem::make()
+                'profile' => fn (Action $action): Action => $action
                     ->label(fn (): string => auth()->user()->full_name)
                     ->url(fn (): string => route('profile.show'))
                     ->icon('heroicon-m-user-circle'),
-                'dashboard' => MenuItem::make()
+                Action::make('dashboard')
                     ->label('Головна сторінка')
                     ->url(fn (): string => route('dashboard'))
                     ->icon('heroicon-m-home')
                     ->openUrlInNewTab(),
-                'colors' => MenuItem::make()
+                Action::make('colors')
                     ->label('Налаштування кольорів')
-                    ->url(fn (): string => \Alison\ProjectManagementAssistant\Filament\Pages\ColorSettings::getUrl())
+                    ->url(fn (): string => ColorSettings::getUrl())
                     ->icon('heroicon-m-paint-brush'),
-                'separator' => MenuItem::make()
-                    ->label('')
+                Action::make('separator')
+                    ->label('---')
+                    ->disabled()
                     ->url('#'),
             ]);
     }

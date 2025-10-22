@@ -4,24 +4,16 @@ namespace Alison\ProjectManagementAssistant\Models;
 
 use Database\Factories\TechnologyFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Technology extends Model
 {
     /** @use HasFactory<TechnologyFactory> */
     use HasFactory, HasUlids;
-
-    protected $fillable = [
-        'slug',
-        'name',
-        'description',
-        'image',
-        'link',
-    ];
 
     public function projects(): BelongsToMany
     {
@@ -67,6 +59,7 @@ class Technology extends Model
                 }
 
                 $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+
                 return $markdownService->toHtml($this->description);
             }
         );
@@ -84,9 +77,9 @@ class Technology extends Model
                 }
 
                 $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+
                 return $markdownService->getPreview($this->description);
             }
         );
     }
-
 }

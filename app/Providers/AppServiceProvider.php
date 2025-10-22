@@ -2,10 +2,11 @@
 
 namespace Alison\ProjectManagementAssistant\Providers;
 
+use Alison\ProjectManagementAssistant\Services\MarkdownService;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Pagination\Paginator;
-use Alison\ProjectManagementAssistant\Services\MarkdownService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,7 +16,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(MarkdownService::class, function ($app) {
-            return new MarkdownService();
+            return new MarkdownService;
         });
     }
 
@@ -24,9 +25,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Використовувати Tailwind CSS для пагінації
+        Model::unguard();
+        Model::shouldBeStrict();
+
         Paginator::useTailwind();
-        
+
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
             URL::forceRootUrl(config('app.url'));

@@ -3,27 +3,16 @@
 namespace Alison\ProjectManagementAssistant\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Subevent extends Model
 {
     use HasFactory, HasUlids;
-
-    protected $fillable = [
-        'event_id',
-        'depends_on',
-        'name',
-        'description',
-        'start_date',
-        'end_date',
-        'bg_color',
-        'fg_color',
-    ];
 
     protected $casts = [
         'start_date' => 'datetime',
@@ -77,6 +66,7 @@ class Subevent extends Model
                 }
 
                 $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+
                 return $markdownService->toHtml($this->description);
             }
         );
@@ -94,9 +84,9 @@ class Subevent extends Model
                 }
 
                 $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+
                 return $markdownService->getPreview($this->description);
             }
         );
     }
-
 }

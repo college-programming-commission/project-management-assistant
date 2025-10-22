@@ -2,13 +2,19 @@
 
 namespace Alison\ProjectManagementAssistant\Filament\Resources\EventResource\RelationManagers;
 
-use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SubeventsRelationManager extends RelationManager
 {
@@ -16,46 +22,24 @@ class SubeventsRelationManager extends RelationManager
 
     protected static ?string $title = 'Підподії';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
+        return $schema
+            ->components([
+                TextInput::make('name')
                     ->label('Назва')
                     ->required()
                     ->maxLength(255),
 
-                Forms\Components\MarkdownEditor::make('description')
+                DateTimePicker::make('start_date')
+                    ->label('Дата початку'),
+
+                DateTimePicker::make('end_date')
+                    ->label('Дата завершення'),
+
+                MarkdownEditor::make('description')
                     ->label('Опис')
                     ->maxLength(65535),
-
-                Forms\Components\DateTimePicker::make('start_date')
-                    ->label('Дата початку')
-                    ->required()
-                    ->native(false),
-
-                Forms\Components\DateTimePicker::make('end_date')
-                    ->label('Дата завершення')
-                    ->required()
-                    ->native(false)
-                    ->after('start_date'),
-
-                Forms\Components\Select::make('depends_on')
-                    ->label('Залежить від підподії')
-                    ->options(function () {
-                        $eventId = $this->getOwnerRecord()->id;
-                        return \Alison\ProjectManagementAssistant\Models\Subevent::where('event_id', $eventId)
-                            ->pluck('name', 'id');
-                    })
-                    ->searchable(),
-
-                Forms\Components\ColorPicker::make('bg_color')
-                    ->label('Колір фону')
-                    ->default('#3b82f6'),
-
-                Forms\Components\ColorPicker::make('fg_color')
-                    ->label('Колір тексту')
-                    ->default('#ffffff'),
             ]);
     }
 
@@ -64,61 +48,39 @@ class SubeventsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->label('Назва')
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('start_date')
+                TextColumn::make('start_date')
                     ->label('Дата початку')
                     ->dateTime('d.m.Y H:i')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('end_date')
+                TextColumn::make('end_date')
                     ->label('Дата завершення')
                     ->dateTime('d.m.Y H:i')
                     ->sortable(),
-
-                Tables\Columns\TextColumn::make('dependsOn.name')
-                    ->label('Залежить від')
-                    ->placeholder('Немає залежності'),
-
-                Tables\Columns\ColorColumn::make('bg_color')
-                    ->label('Колір фону'),
-
-                Tables\Columns\TextColumn::make('description')
-                    ->label('Опис')
-                    ->limit(30)
-                    ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
-                        $state = $column->getState();
-                        if (strlen($state) <= 30) {
-                            return null;
-                        }
-                        return $state;
-                    }),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('depends_on')
-                    ->label('Залежить від')
-                    ->options(function () {
-                        $eventId = $this->getOwnerRecord()->id;
-                        return \Alison\ProjectManagementAssistant\Models\Subevent::where('event_id', $eventId)
-                            ->pluck('name', 'id');
-                    }),
+                Filter::make('active')
+                    ->label('Активні')
+                    ->query(fn (Builder $query) => $query->where('end_date', '>=', now())),
+
+                Filter::make('past')
+                    ->label('Завершені')
+                    ->query(fn (Builder $query) => $query->where('end_date', '<', now())),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                CreateAction::make(),
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->defaultSort('start_date', 'asc');
+            ->toolbarActions([
+                DeleteBulkAction::make(),
+            ]);
     }
 }

@@ -15,13 +15,6 @@ class Supervisor extends Model
     /** @use HasFactory<SupervisorFactory> */
     use HasFactory, HasUlids;
 
-    protected $fillable = [
-        'event_id',
-        'user_id',
-        'note',
-        'slot_count',
-    ];
-
     public function event(): BelongsTo
     {
         return $this->belongsTo(Event::class, 'event_id');

@@ -5,10 +5,19 @@ namespace Alison\ProjectManagementAssistant\Filament\Resources;
 use Alison\ProjectManagementAssistant\Filament\Resources\CategoryResource\Pages;
 use Alison\ProjectManagementAssistant\Filament\Resources\CategoryResource\RelationManagers;
 use Alison\ProjectManagementAssistant\Models\Category;
-use Filament\Forms;
-use Filament\Forms\Form;
+use Exception;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -16,125 +25,77 @@ class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-tag';
-
-    protected static ?string $navigationGroup = 'Управління навчанням';
-
-    protected static ?int $navigationSort = 2;
-
-    protected static ?string $modelLabel = 'Категорія';
-
-    protected static ?string $pluralModelLabel = 'Категорії';
-
-    public static function form(Form $form): Form
+    public static function getNavigationIcon(): ?string
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make('Основна інформація')
-                    ->schema([
-                        Forms\Components\TextInput::make('name')
-                            ->label('Назва')
-                            ->required()
-                            ->maxLength(32),
+        return 'heroicon-o-tag';
+    }
 
-                        Forms\Components\Select::make('course_number')
-                            ->label('Курс')
-                            ->options([
-                                1 => '1 курс',
-                                2 => '2 курс',
-                                3 => '3 курс',
-                                4 => '4 курс',
-                            ])
-                            ->required(),
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Управління навчанням';
+    }
 
-                        Forms\Components\TextInput::make('freezing_period')
-                            ->label('Період заморожування (днів)')
-                            ->numeric()
-                            ->minValue(1)
-                            ->required(),
+    public static function getNavigationSort(): int
+    {
+        return 2;
+    }
 
-                        Forms\Components\TextInput::make('period')
-                            ->label('Період (днів)')
-                            ->numeric()
-                            ->minValue(1)
-                            ->required(),
-                    ])
-                    ->columns(2),
+    public static function getModelLabel(): string
+    {
+        return 'Категорія';
+    }
 
-                Forms\Components\Section::make('Додаткова інформація')
-                    ->schema([
-                        Forms\Components\Repeater::make('attachments')
-                            ->label('Додатки')
-                            ->schema([
-                                Forms\Components\TextInput::make('name')
-                                    ->label('Назва')
-                                    ->required(),
-
-                                Forms\Components\TextInput::make('url')
-                                    ->label('URL')
-                                    ->url()
-                                    ->required(),
-                            ])
-                            ->columns(2),
-                    ]),
-
-                Forms\Components\Section::make('Предмети')
-                    ->schema([
-                        Forms\Components\CheckboxList::make('subjects')
-                            ->label('Предмети')
-                            ->relationship('subjects', 'name')
-                            ->searchable()
-                            ->columnSpanFull(),
-                    ]),
-            ]);
+    public static function getPluralModelLabel(): string
+    {
+        return 'Категорії';
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->label('Назва')
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('course_number')
+                TextColumn::make('course_number')
                     ->label('Курс')
-                    ->formatStateUsing(fn(int $state): string => "{$state} курс")
+                    ->formatStateUsing(fn (int $state): string => "{$state} курс")
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('freezing_period')
+                TextColumn::make('freezing_period')
                     ->label('Період заморожування')
-                    ->formatStateUsing(fn(int $state): string => "{$state} днів")
+                    ->formatStateUsing(fn (int $state): string => "{$state} днів")
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('period')
+                TextColumn::make('period')
                     ->label('Період')
-                    ->formatStateUsing(fn(int $state): string => "{$state} днів")
+                    ->formatStateUsing(fn (int $state): string => "{$state} днів")
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('subjects.name')
+                TextColumn::make('subjects.name')
                     ->label('Предмети')
                     ->badge()
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label('Створено')
                     ->dateTime('d.m.Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->label('Оновлено')
                     ->dateTime('d.m.Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('course_number')
+                SelectFilter::make('course_number')
                     ->label('Курс')
                     ->options([
                         1 => '1 курс',
@@ -143,13 +104,13 @@ class CategoryResource extends Resource
                         4 => '4 курс',
                     ]),
 
-                Tables\Filters\Filter::make('freezing_period')
+                Filter::make('freezing_period')
                     ->label('Період заморожування')
-                    ->form([
-                        Forms\Components\TextInput::make('min_freezing_period')
+                    ->schema([
+                        TextInput::make('min_freezing_period')
                             ->label('Мінімум днів')
                             ->numeric(),
-                        Forms\Components\TextInput::make('max_freezing_period')
+                        TextInput::make('max_freezing_period')
                             ->label('Максимум днів')
                             ->numeric(),
                     ])
@@ -157,21 +118,21 @@ class CategoryResource extends Resource
                         return $query
                             ->when(
                                 $data['min_freezing_period'],
-                                fn(Builder $query, $min): Builder => $query->where('freezing_period', '>=', $min),
+                                fn (Builder $query, $min): Builder => $query->where('freezing_period', '>=', $min),
                             )
                             ->when(
                                 $data['max_freezing_period'],
-                                fn(Builder $query, $max): Builder => $query->where('freezing_period', '<=', $max),
+                                fn (Builder $query, $max): Builder => $query->where('freezing_period', '<=', $max),
                             );
                     }),
 
-                Tables\Filters\Filter::make('period')
+                Filter::make('period')
                     ->label('Період')
-                    ->form([
-                        Forms\Components\TextInput::make('min_period')
+                    ->schema([
+                        TextInput::make('min_period')
                             ->label('Мінімум днів')
                             ->numeric(),
-                        Forms\Components\TextInput::make('max_period')
+                        TextInput::make('max_period')
                             ->label('Максимум днів')
                             ->numeric(),
                     ])
@@ -179,21 +140,19 @@ class CategoryResource extends Resource
                         return $query
                             ->when(
                                 $data['min_period'],
-                                fn(Builder $query, $min): Builder => $query->where('period', '>=', $min),
+                                fn (Builder $query, $min): Builder => $query->where('period', '>=', $min),
                             )
                             ->when(
                                 $data['max_period'],
-                                fn(Builder $query, $max): Builder => $query->where('period', '<=', $max),
+                                fn (Builder $query, $max): Builder => $query->where('period', '<=', $max),
                             );
                     }),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+            ->toolbarActions([
+                DeleteBulkAction::make(),
             ]);
     }
 
@@ -211,5 +170,68 @@ class CategoryResource extends Resource
             'create' => Pages\CreateCategory::route('/create'),
             'edit' => Pages\EditCategory::route('/{record}/edit'),
         ];
+    }
+
+    public static function form(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                Section::make('Основна інформація')
+                    ->schema([
+                        TextInput::make('name')
+                            ->label('Назва')
+                            ->required()
+                            ->maxLength(32),
+
+                        Select::make('course_number')
+                            ->label('Курс')
+                            ->options([
+                                1 => '1 курс',
+                                2 => '2 курс',
+                                3 => '3 курс',
+                                4 => '4 курс',
+                            ])
+                            ->required(),
+
+                        TextInput::make('freezing_period')
+                            ->label('Період заморожування (днів)')
+                            ->numeric()
+                            ->minValue(1)
+                            ->required(),
+
+                        TextInput::make('period')
+                            ->label('Період (днів)')
+                            ->numeric()
+                            ->minValue(1)
+                            ->required(),
+                    ])
+                    ->columns(2),
+
+                Section::make('Додаткова інформація')
+                    ->schema([
+                        Repeater::make('attachments')
+                            ->label('Додатки')
+                            ->schema([
+                                TextInput::make('name')
+                                    ->label('Назва')
+                                    ->required(),
+
+                                TextInput::make('url')
+                                    ->label('URL')
+                                    ->url()
+                                    ->required(),
+                            ])
+                            ->columns(2),
+                    ]),
+
+                Section::make('Предмети')
+                    ->schema([
+                        CheckboxList::make('subjects')
+                            ->label('Предмети')
+                            ->relationship('subjects', 'name')
+                            ->searchable()
+                            ->columnSpanFull(),
+                    ]),
+            ])->columns(1);
     }
 }

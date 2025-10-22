@@ -43,15 +43,6 @@ php artisan db:seed --class=Database\\Seeders\\RolesAndPermissionsSeeder --force
 echo "Ensuring admin user exists..."
 php artisan db:seed --class=Database\\Seeders\\AdminSeeder --force --no-interaction
 
-# Build frontend assets if not present or if build directory is empty
-if [ ! -d "public/build" ] || [ -z "$(ls -A public/build 2>/dev/null)" ]; then
-    echo "Building frontend assets..."
-    npm install
-    npm run build
-else
-    echo "Frontend assets already built."
-fi
-
 # Optimize application (only in production with debug off)
 if [ "$APP_DEBUG" = "false" ] && [ "$APP_ENV" = "production" ]; then
     echo "Caching configuration, routes, and views..."

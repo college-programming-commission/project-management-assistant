@@ -3,12 +3,20 @@
 namespace Alison\ProjectManagementAssistant\Filament\Resources\CategoryResource\RelationManagers;
 
 use Alison\ProjectManagementAssistant\Models\Subject;
-use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 class SubjectsRelationManager extends RelationManager
@@ -17,37 +25,33 @@ class SubjectsRelationManager extends RelationManager
 
     protected static ?string $title = 'Предмети';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->label('Назва')
-                    ->required()
-                    ->maxLength(128)
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(fn (string $state, Forms\Set $set) => $set('slug', Str::slug($state))),
+        return $schema
+            ->components([TextInput::make('name')
+                ->label('Назва')
+                ->required()
+                ->maxLength(128)
+                ->live(onBlur: true)
+                ->afterStateUpdated(fn (string $state, Set $set) => $set('slug', Str::slug($state))),
 
-                Forms\Components\TextInput::make('slug')
+                TextInput::make('slug')
                     ->label('Slug')
                     ->required()
                     ->maxLength(72)
                     ->unique(Subject::class, 'slug', ignoreRecord: true),
 
-                Forms\Components\Select::make('course_number')
+                Select::make('course_number')
                     ->label('Курс')
-                    ->options([
-                        1 => '1 курс',
+                    ->options([1 => '1 курс',
                         2 => '2 курс',
                         3 => '3 курс',
-                        4 => '4 курс',
-                    ])
+                        4 => '4 курс', ])
                     ->required(),
 
-                Forms\Components\MarkdownEditor::make('description')
+                MarkdownEditor::make('description')
                     ->label('Опис')
-                    ->maxLength(65535),
-            ]);
+                    ->maxLength(65535), ]);
     }
 
     public function table(Table $table): Table
@@ -55,28 +59,29 @@ class SubjectsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->label('Назва')
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('slug')
+                TextColumn::make('slug')
                     ->label('Slug')
                     ->searchable()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('course_number')
+                TextColumn::make('course_number')
                     ->label('Курс')
                     ->formatStateUsing(fn (int $state): string => "{$state} курс")
                     ->sortable(),
 
-                Tables\Columns\ImageColumn::make('image')
+                ImageColumn::make('image')
+                    ->disk(env('FILAMENT_FILESYSTEM_DISK', 's3'))
                     ->label('Зображення')
                     ->circular(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('course_number')
+                SelectFilter::make('course_number')
                     ->label('Курс')
                     ->options([
                         1 => '1 курс',
@@ -86,16 +91,14 @@ class SubjectsRelationManager extends RelationManager
                     ]),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                CreateAction::make(),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+            ->toolbarActions([
+                DeleteBulkAction::make(),
             ]);
     }
 }

@@ -14,14 +14,6 @@ class Category extends Model
     /** @use HasFactory<CategoryFactory> */
     use HasFactory, HasUlids;
 
-    protected $fillable = [
-        'name',
-        'freezing_period',
-        'course_number',
-        'period',
-        'attachments',
-    ];
-
     protected $casts = [
         'attachments' => 'array',
     ];

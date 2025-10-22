@@ -3,87 +3,72 @@
 namespace Alison\ProjectManagementAssistant\Filament\Resources;
 
 use Alison\ProjectManagementAssistant\Filament\Resources\PermissionResource\Pages;
-use Alison\ProjectManagementAssistant\Filament\Resources\PermissionResource\RelationManagers;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
-use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
+use Spatie\Permission\Models\Permission;
 
 class PermissionResource extends Resource
 {
     protected static ?string $model = Permission::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-lock-closed';
-
-    protected static ?string $navigationGroup = 'Адміністрування';
-
-    protected static ?int $navigationSort = 3;
-
-    protected static ?string $modelLabel = 'Дозвіл';
-
-    protected static ?string $pluralModelLabel = 'Дозволи';
-
-    public static function form(Form $form): Form
+    public static function getNavigationIcon(): ?string
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make('Деталі дозволу')
-                    ->schema([
-                        Forms\Components\TextInput::make('name')
-                            ->label('Назва')
-                            ->required()
-                            ->maxLength(255)
-                            ->unique(ignoreRecord: true),
+        return 'heroicon-o-lock-closed';
+    }
 
-                        Forms\Components\TextInput::make('guard_name')
-                            ->label('Guard Name')
-                            ->default('web')
-                            ->required()
-                            ->maxLength(255),
-                    ])
-                    ->columns(2),
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Адміністрування';
+    }
 
-                Forms\Components\Section::make('Ролі')
-                    ->schema([
-                        Forms\Components\CheckboxList::make('roles')
-                            ->label('Ролі')
-                            ->relationship('roles', 'name')
-                            ->searchable()
-                            ->columnSpanFull(),
-                    ]),
-            ]);
+    public static function getNavigationSort(): int
+    {
+        return 3;
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Дозвіл';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Дозволи';
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->label('Назва')
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('guard_name')
+                TextColumn::make('guard_name')
                     ->label('Guard Name')
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('roles.name')
+                TextColumn::make('roles.name')
                     ->label('Ролі')
                     ->badge()
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label('Створено')
                     ->dateTime('d.m.Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->label('Оновлено')
                     ->dateTime('d.m.Y H:i')
                     ->sortable()
@@ -92,15 +77,14 @@ class PermissionResource extends Resource
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+            ->toolbarActions([
+                DeleteBulkAction::make(),
             ]);
     }
+
     public static function getRelations(): array
     {
         return [
@@ -115,5 +99,36 @@ class PermissionResource extends Resource
             'create' => Pages\CreatePermission::route('/create'),
             'edit' => Pages\EditPermission::route('/{record}/edit'),
         ];
+    }
+
+    public static function form(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                Section::make('Деталі дозволу')
+                    ->schema([
+                        TextInput::make('name')
+                            ->label('Назва')
+                            ->required()
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true),
+
+                        TextInput::make('guard_name')
+                            ->label('Guard Name')
+                            ->default('web')
+                            ->required()
+                            ->maxLength(255),
+                    ])
+                    ->columns(2),
+
+                Section::make('Ролі')
+                    ->schema([
+                        CheckboxList::make('roles')
+                            ->label('Ролі')
+                            ->relationship('roles', 'name')
+                            ->searchable()
+                            ->columnSpanFull(),
+                    ]),
+            ])->columns(1);
     }
 }

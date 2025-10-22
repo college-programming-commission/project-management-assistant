@@ -4,7 +4,6 @@ namespace Alison\ProjectManagementAssistant\Models;
 
 use Database\Factories\OfferFactory;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,15 +13,9 @@ class Offer extends Model
     /** @use HasFactory<OfferFactory> */
     use HasFactory;
 
-    protected $primaryKey = ['project_id', 'student_id'];
     public $incrementing = false;
+    protected $primaryKey = ['project_id', 'student_id'];
     protected $keyType = 'string';
-    protected $fillable = [
-        'student_id',
-        'project_id',
-        'created_at',
-        'updated_at',
-    ];
 
     public function student(): BelongsTo
     {
@@ -58,7 +51,6 @@ class Offer extends Model
     {
         return $query->whereDate('created_at', now()->toDateString());
     }
-
 
 
 }

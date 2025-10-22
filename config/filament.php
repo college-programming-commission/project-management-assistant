@@ -3,100 +3,205 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | Application Name
+    | Filament Path
     |--------------------------------------------------------------------------
     |
-    | This value is the name of your application. This value is used when the
-    | framework needs to place the application's name in a notification or
-    | any other location as required by the application or its packages.
+    | The default is `admin` but you can change it to whatever you want.
     |
     */
-    'default_namespace' => 'Alison\\ProjectManagementAssistant\\Filament',
+
+    'path' => env('FILAMENT_PATH', 'admin'),
 
     /*
     |--------------------------------------------------------------------------
-    | Namespaces
+    | Filament Core Path
     |--------------------------------------------------------------------------
     |
-    | These are the default namespaces where Filament looks for classes to
-    | automatically discover. You may pass each namespace as a string or an array.
+    | The default is `filament` but you can change it to whatever you want.
     |
     */
-    'namespaces' => [
+
+    'core_path' => env('FILAMENT_CORE_PATH', 'filament'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Filament Domain
+    |--------------------------------------------------------------------------
+    |
+    | You may change the domain where Filament should be active.
+    | If the domain is empty, all domains will be valid.
+    |
+    */
+
+    'domain' => env('FILAMENT_DOMAIN'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Homepage URL
+    |--------------------------------------------------------------------------
+    |
+    | This is the URL that will be used for the homepage of the Filament admin
+    | panel, and for the button on the "404" and "403" pages.
+    |
+    */
+
+    'home_url' => '/',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Auth
+    |--------------------------------------------------------------------------
+    */
+
+    'auth' => [
+        'guard' => env('FILAMENT_AUTH_GUARD', 'web'),
         'pages' => [
-            'Alison\\ProjectManagementAssistant\\Filament\\Pages',
-        ],
-        'resources' => [
-            'Alison\\ProjectManagementAssistant\\Filament\\Resources',
-        ],
-        'widgets' => [
-            'Alison\\ProjectManagementAssistant\\Filament\\Widgets',
+            'login' => \Filament\Http\Livewire\Auth\Login::class,
         ],
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Paths
+    | Auto detect icons
     |--------------------------------------------------------------------------
     |
-    | These are the default paths where Filament looks for classes to
-    | automatically discover. You may pass each path as a string or an array.
+    | Automatically detect icons from your project.
     |
     */
-    'paths' => [
-        'pages' => [
-            app_path('Filament/Pages'),
+
+    'icons' => [
+        'aliases' => [
+            // Define your icon aliases here
         ],
-        'resources' => [
-            app_path('Filament/Resources'),
-        ],
-        'widgets' => [
-            app_path('Filament/Widgets'),
+        'default' => 'heroicon',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Database notifications
+    |--------------------------------------------------------------------------
+    */
+
+    'database_notifications' => [
+        'enabled' => env('FILAMENT_DATABASE_NOTIFICATIONS_ENABLED', true),
+        'polling_interval' => env('FILAMENT_DATABASE_NOTIFICATIONS_POLLING_INTERVAL', '30s'),
+        'database_connection' => env('FILAMENT_DATABASE_NOTIFICATIONS_CONNECTION'),
+        'database_table' => env('FILAMENT_DATABASE_NOTIFICATIONS_TABLE', 'notifications'),
+        'model' => env('FILAMENT_DATABASE_NOTIFICATIONS_MODEL', \Filament\Notifications\Models\DatabaseNotification::class),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Broadcasting
+    |--------------------------------------------------------------------------
+    */
+
+    'broadcasting' => [
+        'enabled' => env('FILAMENT_BROADCASTING_ENABLED', true),
+        'echo' => [
+            'broadcaster' => env('FILAMENT_BROADCASTING_BROADCASTER', 'pusher'),
+            'key' => env('FILAMENT_BROADCASTING_KEY'),
+            'cluster' => env('FILAMENT_BROADCASTING_CLUSTER', 'mt1'),
+            'wsHost' => env('FILAMENT_BROADCASTING_HOST'),
+            'wsPort' => env('FILAMENT_BROADCASTING_PORT', 6001),
+            'wssPort' => env('FILAMENT_BROADCASTING_PORT', 443),
+            'forceTLS' => env('FILAMENT_BROADCASTING_SCHEME', 'https') === 'https',
+            'enableClientSideInterceptors' => false,
         ],
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Pages
+    | Dark mode
     |--------------------------------------------------------------------------
-    |
-    | This is the namespace and directory that Filament will automatically
-    | register pages from. You may also register pages here.
-    |
     */
-    'pages' => [
-        'namespace' => 'Alison\\ProjectManagementAssistant\\Filament\\Pages',
-        'path' => app_path('Filament/Pages'),
-        'register' => [],
+
+    'dark_mode' => true,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Filesystem Disk
+    |--------------------------------------------------------------------------
+    */
+
+    'default_filesystem_disk' => env('FILAMENT_FILESYSTEM_DRIVER', 'public'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Avatar Provider
+    |--------------------------------------------------------------------------
+    */
+
+    'default_avatar_provider' => \Filament\AvatarProviders\UiAvatarsProvider::class,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default File Provider
+    |--------------------------------------------------------------------------
+    */
+
+    'default_file_provider' => \Filament\FileProviders\Local::class,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Rich Editor Provider
+    |--------------------------------------------------------------------------
+    */
+
+    'default_rich_editor_provider' => \Filament\RichEditorProviders\TinyMce::class,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Password Reset Provider
+    |--------------------------------------------------------------------------
+    */
+
+    'default_password_reset_provider' => \Filament\PasswordResetProviders\Database::class,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Health Panel
+    |--------------------------------------------------------------------------
+    */
+
+    'panels' => [
+        'default' => [
+            'database_notifications' => [
+                'enabled' => true,
+                'polling_interval' => '30s',
+            ],
+            'resources' => [
+                'registration' => true,
+                'discover' => true,
+                'paths' => [
+                    app_path('Filament/Resources'),
+                ],
+            ],
+            'pages' => [
+                'registration' => true,
+                'discover' => true,
+                'paths' => [
+                    app_path('Filament/Pages'),
+                ],
+            ],
+            'widgets' => [
+                'registration' => true,
+                'discover' => true,
+                'paths' => [
+                    app_path('Filament/Widgets'),
+                ],
+            ],
+        ],
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Resources
+    | Global Search
     |--------------------------------------------------------------------------
-    |
-    | This is the namespace and directory that Filament will automatically
-    | register resources from. You may also register resources here.
-    |
     */
-    'resources' => [
-        'namespace' => 'Alison\\ProjectManagementAssistant\\Filament\\Resources',
-        'path' => app_path('Filament/Resources'),
-        'register' => [],
-    ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Widgets
-    |--------------------------------------------------------------------------
-    |
-    | This is the namespace and directory that Filament will automatically
-    | register widgets from. You may also register widgets here.
-    |
-    */
-    'widgets' => [
-        'namespace' => 'Alison\\ProjectManagementAssistant\\Filament\\Widgets',
-        'path' => app_path('Filament/Widgets'),
-        'register' => [],
+    'global_search' => [
+        'enabled' => true,
+        'timeout' => 5,
     ],
 ];

@@ -2,32 +2,20 @@
 
 namespace Alison\ProjectManagementAssistant\Models;
 
+use Alison\ProjectManagementAssistant\Services\MarkdownService;
 use Database\Factories\EventFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Event extends Model
 {
     /** @use HasFactory<EventFactory> */
     use HasFactory, HasUlids;
-
-    protected $fillable = [
-        'name',
-        'category_id',
-        'description',
-        'start_date',
-        'end_date',
-        'bg_color',
-        'fg_color',
-        'image',
-        'created_at',
-        'updated_at',
-    ];
 
     protected $appends = ['image_url'];
 
@@ -135,7 +123,7 @@ class Event extends Model
                     return '';
                 }
 
-                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+                $markdownService = app(MarkdownService::class);
                 return $markdownService->toHtml($this->description);
             }
         );
@@ -152,7 +140,7 @@ class Event extends Model
                     return '';
                 }
 
-                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
+                $markdownService = app(MarkdownService::class);
                 return $markdownService->getPreview($this->description);
             }
         );

@@ -3,89 +3,54 @@
 namespace Alison\ProjectManagementAssistant\Filament\Resources;
 
 use Alison\ProjectManagementAssistant\Filament\Resources\SubeventResource\Pages;
-use Alison\ProjectManagementAssistant\Filament\Resources\SubeventResource\RelationManagers;
 use Alison\ProjectManagementAssistant\Models\Subevent;
-use Alison\ProjectManagementAssistant\Models\Event;
-use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\ColorColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SubeventResource extends Resource
 {
     protected static ?string $model = Subevent::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
-
-    protected static ?string $navigationGroup = 'Управління подіями';
-
-    protected static ?int $navigationSort = 2;
-
-    protected static ?string $modelLabel = 'Підподія';
-
-    protected static ?string $pluralModelLabel = 'Підподії';
-
-    public static function form(Form $form): Form
+    public static function getNavigationIcon(): ?string
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make('Основна інформація')
-                    ->schema([
-                        Forms\Components\Select::make('event_id')
-                            ->label('Подія')
-                            ->relationship('event', 'name')
-                            ->required()
-                            ->searchable()
-                            ->preload(),
+        return 'heroicon-o-calendar-days';
+    }
 
-                        Forms\Components\TextInput::make('name')
-                            ->label('Назва')
-                            ->required()
-                            ->maxLength(255),
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Управління подіями';
+    }
 
-                        Forms\Components\Textarea::make('description')
-                            ->label('Опис')
-                            ->maxLength(65535)
-                            ->columnSpanFull(),
-                    ])
-                    ->columns(2),
+    public static function getNavigationSort(): int
+    {
+        return 2;
+    }
 
-                Forms\Components\Section::make('Дати та час')
-                    ->schema([
-                        Forms\Components\DateTimePicker::make('start_date')
-                            ->label('Дата початку')
-                            ->required()
-                            ->native(false),
+    public static function getModelLabel(): string
+    {
+        return 'Підподія';
+    }
 
-                        Forms\Components\DateTimePicker::make('end_date')
-                            ->label('Дата завершення')
-                            ->required()
-                            ->native(false)
-                            ->after('start_date'),
-                    ])
-                    ->columns(2),
-
-                Forms\Components\Section::make('Залежності та стилізація')
-                    ->schema([
-                        Forms\Components\Select::make('depends_on')
-                            ->label('Залежить від підподії')
-                            ->relationship('dependsOn', 'name')
-                            ->searchable()
-                            ->preload(),
-
-                        Forms\Components\ColorPicker::make('bg_color')
-                            ->label('Колір фону')
-                            ->default('#3b82f6'),
-
-                        Forms\Components\ColorPicker::make('fg_color')
-                            ->label('Колір тексту')
-                            ->default('#ffffff'),
-                    ])
-                    ->columns(3),
-            ]);
+    public static function getPluralModelLabel(): string
+    {
+        return 'Підподії';
     }
 
     public static function table(Table $table): Table
@@ -95,76 +60,77 @@ class SubeventResource extends Resource
                 return $query->with(['event', 'dependsOn']);
             })
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->label('Назва')
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('event.name')
+                TextColumn::make('event.name')
                     ->label('Подія')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('dependsOn.name')
+                TextColumn::make('dependsOn.name')
                     ->label('Залежить від')
                     ->sortable()
                     ->placeholder('Немає залежності'),
 
-                Tables\Columns\TextColumn::make('start_date')
+                TextColumn::make('start_date')
                     ->label('Дата початку')
                     ->dateTime('d.m.Y H:i')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('end_date')
+                TextColumn::make('end_date')
                     ->label('Дата завершення')
                     ->dateTime('d.m.Y H:i')
                     ->sortable(),
 
-                Tables\Columns\ColorColumn::make('bg_color')
+                ColorColumn::make('bg_color')
                     ->label('Колір фону'),
 
-                Tables\Columns\TextColumn::make('description')
+                TextColumn::make('description')
                     ->label('Опис')
                     ->limit(50)
-                    ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
+                    ->tooltip(function (TextColumn $column): ?string {
                         $state = $column->getState();
                         if (strlen($state) <= 50) {
                             return null;
                         }
+
                         return $state;
                     })
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label('Створено')
                     ->dateTime('d.m.Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->label('Оновлено')
                     ->dateTime('d.m.Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('event')
+                SelectFilter::make('event')
                     ->label('Подія')
                     ->relationship('event', 'name')
                     ->searchable()
                     ->preload(),
 
-                Tables\Filters\SelectFilter::make('depends_on')
+                SelectFilter::make('depends_on')
                     ->label('Залежить від')
                     ->relationship('dependsOn', 'name')
                     ->searchable()
                     ->preload(),
 
-                Tables\Filters\Filter::make('start_date')
+                Filter::make('start_date')
                     ->label('Дата початку')
-                    ->form([
-                        Forms\Components\DatePicker::make('start_from')
+                    ->schema([
+                        DatePicker::make('start_from')
                             ->label('Від'),
-                        Forms\Components\DatePicker::make('start_until')
+                        DatePicker::make('start_until')
                             ->label('До'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
@@ -179,15 +145,13 @@ class SubeventResource extends Resource
                             );
                     }),
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+            ->toolbarActions([
+                DeleteBulkAction::make(),
             ])
             ->defaultSort('start_date', 'asc');
     }
@@ -204,8 +168,67 @@ class SubeventResource extends Resource
         return [
             'index' => Pages\ListSubevents::route('/'),
             'create' => Pages\CreateSubevent::route('/create'),
-            'view' => Pages\ViewSubevent::route('/{record}'),
             'edit' => Pages\EditSubevent::route('/{record}/edit'),
         ];
+    }
+
+    public static function form(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                Section::make('Основна інформація')
+                    ->schema([
+                        Select::make('event_id')
+                            ->label('Подія')
+                            ->relationship('event', 'name')
+                            ->required()
+                            ->searchable()
+                            ->preload(),
+
+                        TextInput::make('name')
+                            ->label('Назва')
+                            ->required()
+                            ->maxLength(255),
+
+                        Textarea::make('description')
+                            ->label('Опис')
+                            ->maxLength(65535)
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2),
+
+                Section::make('Дати та час')
+                    ->schema([
+                        DateTimePicker::make('start_date')
+                            ->label('Дата початку')
+                            ->required()
+                            ->native(false),
+
+                        DateTimePicker::make('end_date')
+                            ->label('Дата завершення')
+                            ->required()
+                            ->native(false)
+                            ->after('start_date'),
+                    ])
+                    ->columns(2),
+
+                Section::make('Залежності та стилізація')
+                    ->schema([
+                        Select::make('depends_on')
+                            ->label('Залежить від підподії')
+                            ->relationship('dependsOn', 'name')
+                            ->searchable()
+                            ->preload(),
+
+                        ColorPicker::make('bg_color')
+                            ->label('Колір фону')
+                            ->default('#3b82f6'),
+
+                        ColorPicker::make('fg_color')
+                            ->label('Колір тексту')
+                            ->default('#ffffff'),
+                    ])
+                    ->columns(3),
+            ])->columns(1);
     }
 }

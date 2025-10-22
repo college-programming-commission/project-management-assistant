@@ -2,14 +2,15 @@
 
 namespace Alison\ProjectManagementAssistant\Filament\Resources\ProjectResource\RelationManagers;
 
-use Alison\ProjectManagementAssistant\Models\Technology;
-use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Actions\AttachAction;
+use Filament\Actions\DetachAction;
+use Filament\Actions\DetachBulkAction;
+use Filament\Forms\Components\Select;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Str;
 
 class TechnologiesRelationManager extends RelationManager
 {
@@ -17,83 +18,50 @@ class TechnologiesRelationManager extends RelationManager
 
     protected static ?string $title = 'Технології';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->label('Назва')
+        return $schema
+            ->components([
+                Select::make('technology_id')
+                    ->label('Технологія')
+                    ->relationship('technology', 'name')
                     ->required()
-                    ->maxLength(128)
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(fn (string $state, Forms\Set $set) => $set('slug', Str::slug($state))),
-
-                Forms\Components\TextInput::make('slug')
-                    ->label('Slug')
-                    ->required()
-                    ->maxLength(128)
-                    ->unique(Technology::class, 'slug', ignoreRecord: true),
-
-                Forms\Components\TextInput::make('link')
-                    ->label('Посилання')
-                    ->url()
-                    ->maxLength(2048),
-
-                Forms\Components\MarkdownEditor::make('description')
-                    ->label('Опис')
-                    ->maxLength(65535),
+                    ->searchable()
+                    ->preload(),
             ]);
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('name')
+            ->recordTitleAttribute('technology.name')
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('technology.name')
                     ->label('Назва')
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('slug')
-                    ->label('Slug')
-                    ->searchable()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
-                Tables\Columns\TextColumn::make('link')
+                TextColumn::make('technology.link')
                     ->label('Посилання')
-                    ->url()
+                    ->url(fn ($record) => $record->technology->link)
                     ->openUrlInNewTab(),
-
-                Tables\Columns\ImageColumn::make('image')
-                    ->label('Зображення')
-                    ->circular(),
-
-                Tables\Columns\TextColumn::make('projects_count')
-                    ->label('Кількість проектів')
-                    ->counts('projects')
-                    ->sortable(),
             ])
             ->filters([
-                Tables\Filters\Filter::make('with_link')
-                    ->label('З посиланням')
-                    ->query(fn (Builder $query): Builder => $query->whereNotNull('link')->where('link', '!=', '')),
+                SelectFilter::make('technology')
+                    ->label('Технологія')
+                    ->relationship('technology', 'name')
+                    ->searchable()
+                    ->preload(),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
-                Tables\Actions\AttachAction::make(),
+                AttachAction::make()
+                    ->preloadRecordSelect(),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DetachAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                DetachAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DetachBulkAction::make(),
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+            ->toolbarActions([
+                DetachBulkAction::make(),
             ]);
     }
 }

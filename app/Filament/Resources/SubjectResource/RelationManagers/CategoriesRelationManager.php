@@ -2,13 +2,17 @@
 
 namespace Alison\ProjectManagementAssistant\Filament\Resources\SubjectResource\RelationManagers;
 
-use Alison\ProjectManagementAssistant\Models\Category;
-use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 
 class CategoriesRelationManager extends RelationManager
 {
@@ -16,16 +20,16 @@ class CategoriesRelationManager extends RelationManager
 
     protected static ?string $title = 'Категорії';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
+        return $schema
+            ->components([
+                TextInput::make('name')
                     ->label('Назва')
                     ->required()
                     ->maxLength(32),
 
-                Forms\Components\Select::make('course_number')
+                Select::make('course_number')
                     ->label('Курс')
                     ->options([
                         1 => '1 курс',
@@ -35,13 +39,13 @@ class CategoriesRelationManager extends RelationManager
                     ])
                     ->required(),
 
-                Forms\Components\TextInput::make('freezing_period')
+                TextInput::make('freezing_period')
                     ->label('Період заморожування (днів)')
                     ->numeric()
                     ->minValue(1)
                     ->required(),
 
-                Forms\Components\TextInput::make('period')
+                TextInput::make('period')
                     ->label('Період (днів)')
                     ->numeric()
                     ->minValue(1)
@@ -54,28 +58,28 @@ class CategoriesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->label('Назва')
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('course_number')
+                TextColumn::make('course_number')
                     ->label('Курс')
                     ->formatStateUsing(fn (int $state): string => "{$state} курс")
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('freezing_period')
+                TextColumn::make('freezing_period')
                     ->label('Період заморожування')
                     ->formatStateUsing(fn (int $state): string => "{$state} днів")
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('period')
+                TextColumn::make('period')
                     ->label('Період')
                     ->formatStateUsing(fn (int $state): string => "{$state} днів")
                     ->sortable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('course_number')
+                SelectFilter::make('course_number')
                     ->label('Курс')
                     ->options([
                         1 => '1 курс',
@@ -85,16 +89,14 @@ class CategoriesRelationManager extends RelationManager
                     ]),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                CreateAction::make(),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+            ->toolbarActions([
+                DeleteBulkAction::make(),
             ]);
     }
 }

@@ -17,6 +17,7 @@ services:
             dockerfile: Dockerfile
             args:
                 - NODE_ENV=production
+                - INSTALL_DEV=false
         image: project-management-assistant-app:latest
         container_name: project-management-app
         restart: always
