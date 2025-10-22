@@ -140,11 +140,8 @@ RUN mkdir -p /var/www/html/storage/app/public \
              /var/www/html/bootstrap/cache
 
 # === ПОЧАТОК ЗМІН ===
-# "Запікаємо" асети та посилання. Це БЕЗПЕЧНІ команди для збірки.
-RUN php -d opcache.enable=0 artisan storage:link
-RUN php -d opcache.enable=0 artisan filament:assets
-
-# Ми ВИДАЛИЛИ звідси `optimize:clear` та `optimize`, оскільки їм потрібна БД.
+# МИ ВИДАЛИЛИ ЗВІДСИ УСІ 'artisan' КОМАНДИ.
+# Вони будуть виконані в entrypoint.sh ПІСЛЯ запуску БД.
 # === КІНЕЦЬ ЗМІН ===
 
 # Set proper permissions *after* all files are generated
