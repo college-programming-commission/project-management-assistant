@@ -43,6 +43,10 @@ php artisan db:seed --class=Database\\Seeders\\RolesAndPermissionsSeeder --force
 echo "Ensuring admin user exists..."
 php artisan db:seed --class=Database\\Seeders\\AdminSeeder --force --no-interaction
 
+# Публікуємо асети Filament (CSS/JS/Fonts)
+echo "Publishing Filament assets..."
+php artisan filament:assets
+
 # Optimize application (only in production with debug off)
 if [ "$APP_DEBUG" = "false" ] && [ "$APP_ENV" = "production" ]; then
     echo "Caching configuration, routes, and views..."
