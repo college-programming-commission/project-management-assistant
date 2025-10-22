@@ -134,6 +134,13 @@ COPY --from=assets /var/www/html/public/build/ /var/www/html/public/build/
 # Copy application code
 COPY . .
 
+RUN mkdir -p /var/www/html/storage/app/public \
+             /var/www/html/storage/framework/sessions \
+             /var/www/html/storage/framework/views \
+             /var/www/html/storage/framework/cache/data \
+             /var/www/html/storage/logs \
+             /var/www/html/bootstrap/cache
+
 # Set proper permissions
 RUN chown -R www-data:www-data \
         /var/www/html/storage \
