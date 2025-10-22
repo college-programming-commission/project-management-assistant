@@ -43,6 +43,9 @@ php artisan db:seed --class=Database\\Seeders\\RolesAndPermissionsSeeder --force
 echo "Ensuring admin user exists..."
 php artisan db:seed --class=Database\\Seeders\\AdminSeeder --force --no-interaction
 
+echo "Creating storage link..."
+php artisan storage:link
+
 # Публікуємо асети Filament (CSS/JS/Fonts)
 echo "Publishing Filament assets..."
 php artisan filament:assets
