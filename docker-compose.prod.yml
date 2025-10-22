@@ -25,8 +25,8 @@ services:
     env_file:
       - .env
     volumes:
-      - app-public:/var/www/html/public
-      - app-storage:/var/www/html/storage
+      - app-public-v2:/var/www/html/public  # <-- НОВИЙ
+      - app-storage-v2:/var/www/html/storage # <-- НОВИЙ
     networks:
       project-management-network:
         aliases:
@@ -55,7 +55,7 @@ services:
       # - '${APP_PORT_SSL:-443}:443'
     volumes:
       - ./config/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - app-public:/var/www/html/public:ro
+      - app-public-v2:/var/www/html/public:ro # <-- НОВИЙ
       # Для HTTPS додайте SSL сертифікати:
       # - ./config/ssl:/etc/nginx/ssl:ro
     networks:
@@ -209,11 +209,11 @@ volumes:
   redis-data:
     name: project-management-redis-data
     driver: local
-  app-public:
-    name: project-management-public
+  app-public-v2: # <-- НОВИЙ
+    name: project-management-public-v2
     driver: local
-  app-storage:
-    name: project-management-storage
+  app-storage-v2: # <-- НОВИЙ
+    name: project-management-storage-v2
     driver: local
   minio-data:
     name: project-management-minio
