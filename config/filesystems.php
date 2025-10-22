@@ -58,7 +58,7 @@ return [
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'throw' => false,
             'report' => false,
-            'temporary_url_endpoint' => env('AWS_TEMPORARY_URL_ENDPOINT', env('AWS_ENDPOINT')),
+            'temporary_url_endpoint' => 'https://s3.kafedra.phfk.college',
         ],
 
     ],

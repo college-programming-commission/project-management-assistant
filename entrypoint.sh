@@ -53,3 +53,4 @@ echo "Entrypoint tasks complete. Starting container command..."
 
 # 9. Execute the main container command (e.g., "php-fpm")
 exec "$@"
+
