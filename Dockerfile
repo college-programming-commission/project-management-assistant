@@ -122,6 +122,9 @@ RUN npm ci \
 # =============================================================================
 FROM base AS app
 
+# Re-declare ARG for this stage
+ARG INSTALL_DEV=true
+
 # Copy vendor dependencies
 COPY --from=vendor /var/www/html/vendor/ /var/www/html/vendor/
 
@@ -139,7 +142,36 @@ RUN mkdir -p /var/www/html/storage/app/public \
              /var/www/html/storage/logs \
              /var/www/html/bootstrap/cache
 
-# Set proper permissions *after* all files are generated
+# === ПОЧАТОК "ЯДЕРНОГО" ВИПРАВЛЕННЯ ===
+# Ми "обдурюємо" Artisan, щоб він не намагався підключитися до БД/Redis під час збірки.
+# Це дозволяє нам "запекти" асети та кеш прямо в образ.
+ENV CACHE_DRIVER=file
+ENV DB_CONNECTION=sqlite
+ENV QUEUE_CONNECTION=sync
+ENV SESSION_DRIVER=file
+RUN touch /var/www/html/database/database.sqlite
+
+# "Запікаємо" асети та кеш.
+# (Він візьме hardcoded `https://...` URL-и з ваших config-файлів)
+RUN php -d opcache.enable=0 artisan optimize:clear
+RUN php -d opcache.enable=0 artisan storage:link
+RUN php -d opcache.enable=0 artisan filament:assets
+
+# "Запікаємо" кеш конфігурації (SPA, S3 URL-и тощо)
+RUN if [ "$INSTALL_DEV" = "false" ]; then \
+        php -d opcache.enable=0 artisan optimize; \
+    else \
+        echo "Skipping optimization in dev build"; \
+    fi
+
+# Очищуємо тимчасові змінні, щоб вони не заважали .env (з Dokploy) під час запуску
+ENV CACHE_DRIVER=
+ENV DB_CONNECTION=
+ENV QUEUE_CONNECTION=
+ENV SESSION_DRIVER=
+# === КІНЕЦЬ "ЯДЕРНОГО" ВИПРАВЛЕННЯ ===
+
+# Встановлюємо права *після* генерації всіх файлів
 RUN chown -R www-data:www-data \
         /var/www/html/storage \
         /var/www/html/bootstrap/cache \
