@@ -2,16 +2,14 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
-# === ПОЧАТОК "ЯДЕРНОГО" ОЧИЩЕННЯ ===
-# Ми робимо це ДО того, як Artisan взагалі спробує завантажити кеш.
-# Це гарантує, що ми видалимо "зомбі-кеш" з "брудного" вольюму.
+# === "ЯДЕРНЕ" ОЧИЩЕННЯ ===
+# Це примусово видаляє "зомбі" кеш ТА "зомбі" асети
+# з персистентних вольюмів, перш ніж Artisan взагалі запуститься.
 echo "Force deleting ALL stale cache files..."
-rm -f /var/www/html/bootstrap/cache/config.php
-rm -f /var/www/html/bootstrap/cache/routes-v7.php
-rm -f /var/www/html/bootstrap/cache/events.php
-rm -f /var/www/html/bootstrap/cache/services.php
-rm -f /var/www/html/bootstrap/cache/packages.php
-echo "Stale cache files deleted."
+rm -f /var/www/html/bootstrap/cache/*.php
+echo "Force deleting ALL stale Filament assets..."
+rm -rf /var/www/html/public/vendor/filament
+echo "Stale cache and assets deleted."
 # === КІНЕЦЬ "ЯДЕРНОГО" ОЧИЩЕННЯ ===
 
 # Налаштування прав доступу
@@ -20,18 +18,18 @@ chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # 1. Очищуємо решту кешу (тепер це безпечно)
-echo "Clearing application cache (just in case)..."
+echo "Clearing application cache (Artisan)..."
 php -d opcache.enable=0 artisan optimize:clear
 
 # 2. Чекаємо на базу даних
-echo "Waiting for database to be ready..."
+echo "Waiting for database..."
 while ! nc -z db 5432; do
   sleep 0.1
 done
 echo "Database is ready."
 
-# 2.1. Чекаємо на Redis
-echo "Waiting for Redis to be ready..."
+# 2.1. Чекаємо на Redis (ми додали це для надійності getPrimaryColor())
+echo "Waiting for Redis..."
 while ! nc -z redis 6379; do
   sleep 0.1
 done
@@ -59,12 +57,11 @@ php -d opcache.enable=0 artisan db:seed --class=Database\\Seeders\\AdminSeeder -
 echo "Creating storage link..."
 php -d opcache.enable=0 artisan storage:link
 
-# 7. Публікуємо асети
+# 7. Публікуємо асети (тепер у чисту папку)
 echo "Publishing Filament assets..."
 php -d opcache.enable=0 artisan filament:assets
 
-# 8. Кешуємо все
-# (Тепер він 100% прочитає ваші hardcoded-файли і згенерує правильний кеш)
+# 8. Кешуємо все (тепер він 100% прочитає ваші hardcoded-файли)
 echo "Caching configuration, routes, and views..."
 php -d opcache.enable=0 artisan optimize
 
