@@ -109,13 +109,18 @@ services:
         image: redis:7-alpine
         container_name: project-management-redis
         restart: always
-        command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+        command: >
+            redis-server
+            --maxmemory 512mb
+            --maxmemory-policy allkeys-lru
+            --appendonly yes
+            --requirepass ${REDIS_PASSWORD}
         volumes:
             - redis-data:/data
         networks:
             - project-management-network
         healthcheck:
-            test: ['CMD', 'redis-cli', 'ping']
+            test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD}', 'ping']
             interval: 10s
             timeout: 5s
             retries: 5
