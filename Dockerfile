@@ -2,31 +2,15 @@
 # Stage 1: Base image with PHP and system dependencies
 # =============================================================================
 FROM php:8.4-fpm AS base
-
-# Metadata
 LABEL maintainer="it_commission_college@uzhnu.edu.ua"
-LABEL description="Project Management Assistant - Base image with PHP 8.4 and dependencies"
-
-# Set working directory
+LABEL description="Project Management Assistant - Base image"
 WORKDIR /var/www/html
 
-# Install system dependencies in a single layer to reduce image size
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    curl \
-    gnupg \
-    libzip-dev \
-    libpng-dev \
-    libjpeg62-turbo-dev \
-    libfreetype6-dev \
-    libonig-dev \
-    libxml2-dev \
-    libpq-dev \
-    libicu-dev \
-    zip \
-    unzip \
-    git \
-    netcat-openbsd \
+    ca-certificates curl gnupg libzip-dev libpng-dev libjpeg62-turbo-dev \
+    libfreetype6-dev libonig-dev libxml2-dev libpq-dev libicu-dev \
+    zip unzip git netcat-openbsd \
     && mkdir -p /etc/apt/keyrings \
     && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
     && NODE_MAJOR=20 \
@@ -36,23 +20,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Configure GD library with support for JPEG and FreeType
+# Configure GD library
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 
 # Install PHP extensions
 RUN pecl install redis \
     && docker-php-ext-enable redis \
-    && docker-php-ext-install -j$(nproc) \
-        pdo_pgsql \
-        gd \
-        exif \
-        pcntl \
-        bcmath \
-        zip \
-        intl \
-        opcache
+    && docker-php-ext-install -j$(nproc) pdo_pgsql gd exif pcntl bcmath zip intl opcache
 
-# Install Composer from official image
+# Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Configure PHP opcache
@@ -75,43 +51,29 @@ RUN if [ "$INSTALL_DEV" = "true" ]; then \
 # Stage 2: Build vendor dependencies
 # =============================================================================
 FROM base AS vendor
+ARG INSTALL_DEV=true
+WORKDIR /var/www/html
 
-# Copy only dependency files first for better caching
 COPY composer.json composer.lock ./
 COPY database/ database/
 
-# Install composer dependencies
-ARG INSTALL_DEV=true
 RUN if [ "$INSTALL_DEV" = "true" ]; then \
-        composer install \
-            --no-interaction \
-            --no-plugins \
-            --no-scripts \
-            --prefer-dist \
-            --optimize-autoloader; \
+        composer install --no-interaction --no-plugins --no-scripts --prefer-dist --optimize-autoloader; \
     else \
-        composer install \
-            --no-dev \
-            --no-interaction \
-            --no-plugins \
-            --no-scripts \
-            --prefer-dist \
-            --optimize-autoloader; \
+        composer install --no-dev --no-interaction --no-plugins --no-scripts --prefer-dist --optimize-autoloader; \
     fi
-
-# Copy package files for npm
 COPY package*.json ./
 
 # =============================================================================
 # Stage 3: Build frontend assets
 # =============================================================================
 FROM base AS assets
+WORKDIR /var/www/html
 
 COPY --from=vendor /var/www/html/vendor/ /var/www/html/vendor/
 COPY package*.json ./
 COPY . .
 
-# Install npm dependencies and build assets
 RUN npm ci \
     && npm run build \
     && npm cache clean --force \
@@ -121,17 +83,11 @@ RUN npm ci \
 # Stage 4: Final application image
 # =============================================================================
 FROM base AS app
-
-# Re-declare ARG for this stage
 ARG INSTALL_DEV=true
+WORKDIR /var/www/html
 
-# Copy vendor dependencies
 COPY --from=vendor /var/www/html/vendor/ /var/www/html/vendor/
-
-# Copy built assets
 COPY --from=assets /var/www/html/public/build/ /var/www/html/public/build/
-
-# Copy application code
 COPY . .
 
 # Create directories for volumes & cache
@@ -152,7 +108,7 @@ ENV SESSION_DRIVER=file
 RUN touch /var/www/html/database/database.sqlite
 
 # "Запікаємо" асети та кеш.
-# (Він візьме hardcoded `https://...` URL-и з ваших config-файлів)
+# (Тепер це не "впаде", оскільки AdminPanelProvider безпечний)
 RUN php -d opcache.enable=0 artisan optimize:clear
 RUN php -d opcache.enable=0 artisan storage:link
 RUN php -d opcache.enable=0 artisan filament:assets
@@ -184,8 +140,6 @@ RUN chown -R www-data:www-data \
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Expose PHP-FPM port
 EXPOSE 9000
-
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["php-fpm"]

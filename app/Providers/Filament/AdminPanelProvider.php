@@ -20,8 +20,9 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Illuminate\View\Middleware\ShareErrorsFromSession; // *** ДОДАЙТЕ ЦЕЙ РЯДОК ***
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -85,6 +86,14 @@ class AdminPanelProvider extends PanelProvider
 
     protected function getPrimaryColor(): array
     {
+        // === ПОЧАТОК ВИПРАВЛЕННЯ ===
+        // Якщо додаток запущено в консолі (наприклад, 'artisan optimize' під час збірки),
+        // ми НЕ МОЖЕМО звертатися до Cache/DB. Повертаємо безпечне значення.
+        if (App::runningInConsole()) {
+            return Color::Amber;
+        }
+        // === КІНЕЦЬ ВИПРАВЛЕННЯ ===
+
         $colorName = Cache::get('admin_primary_color', 'amber');
 
         $colors = [
