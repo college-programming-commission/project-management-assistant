@@ -1,7 +1,7 @@
 <button
     type="button"
     class="theme-switcher-btn relative inline-flex items-center p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 transition duration-150 ease-in-out"
-    onclick="toggleDarkMode()"
+    @click="window.toggleDarkMode ? window.toggleDarkMode() : null"
     title="{{ __('Перемкнути тему') }}"
     aria-label="{{ __('Перемкнути тему') }}"
 >

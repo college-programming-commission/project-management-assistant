@@ -2,7 +2,7 @@
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
-            <div class="flex">
+            <div class="flex items-center">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
@@ -18,81 +18,93 @@
 
                     <!-- Події Dropdown -->
                     <x-dropdown align="left" width="48">
-                            <x-slot name="trigger">
-                                <x-nav-link href="#" :active="request()->routeIs('events.*')" class="inline-flex items-center">
-                                    <div>{{ __('Події') }}</div>
-                                    <div class="ms-1">
-                                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
-                                </x-nav-link>
-                            </x-slot>
+                        <x-slot name="trigger">
+                            @php
+                            $isActive = request()->routeIs('events.*');
+                            $classes = $isActive
+                                ? 'inline-flex items-center px-1 pt-1 border-b-2 border-primary-400 text-sm font-medium leading-5 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-primary-700 transition duration-150 ease-in-out'
+                                : 'inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 focus:outline-none focus:text-gray-700 dark:focus:text-gray-300 focus:border-gray-300 dark:focus:border-gray-700 transition duration-150 ease-in-out';
+                            @endphp
+                            <button type="button" class="{{ $classes }}">
+                                <span>{{ __('Події') }}</span>
+                                <svg class="ms-1 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </x-slot>
 
-                            <x-slot name="content">
-                                <x-dropdown-link href="{{ route('events.current') }}">
-                                    {{ __('Активні події') }}
-                                </x-dropdown-link>
-                                <x-dropdown-link href="{{ route('events.upcoming') }}">
-                                    {{ __('Майбутні події') }}
-                                </x-dropdown-link>
-                                <x-dropdown-link href="{{ route('events.archived') }}">
-                                    {{ __('Архівовані події') }}
-                                </x-dropdown-link>
-                                <x-dropdown-link href="{{ route('events.index') }}">
-                                    {{ __('Всі події') }}
-                                </x-dropdown-link>
-                            </x-slot>
-                        </x-dropdown>
+                        <x-slot name="content">
+                            <x-dropdown-link href="{{ route('events.current') }}">
+                                {{ __('Активні події') }}
+                            </x-dropdown-link>
+                            <x-dropdown-link href="{{ route('events.upcoming') }}">
+                                {{ __('Майбутні події') }}
+                            </x-dropdown-link>
+                            <x-dropdown-link href="{{ route('events.archived') }}">
+                                {{ __('Архівовані події') }}
+                            </x-dropdown-link>
+                            <x-dropdown-link href="{{ route('events.index') }}">
+                                {{ __('Всі події') }}
+                            </x-dropdown-link>
+                        </x-slot>
+                    </x-dropdown>
 
                     <!-- Проекти Dropdown -->
                     <x-dropdown align="left" width="48">
-                            <x-slot name="trigger">
-                                <x-nav-link href="#" :active="request()->routeIs('projects.*')" class="inline-flex items-center">
-                                    <div>{{ __('Проекти') }}</div>
-                                    <div class="ms-1">
-                                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
-                                </x-nav-link>
-                            </x-slot>
+                        <x-slot name="trigger">
+                            @php
+                            $isActive = request()->routeIs('projects.*') || request()->routeIs('offers.*') || request()->routeIs('teacher.offers.*');
+                            $classes = $isActive
+                                ? 'inline-flex items-center px-1 pt-1 border-b-2 border-primary-400 text-sm font-medium leading-5 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-primary-700 transition duration-150 ease-in-out'
+                                : 'inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 focus:outline-none focus:text-gray-700 dark:focus:text-gray-300 focus:border-gray-300 dark:focus:border-gray-700 transition duration-150 ease-in-out';
+                            @endphp
+                            <button type="button" class="{{ $classes }}">
+                                <span>{{ __('Проекти') }}</span>
+                                <svg class="ms-1 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </x-slot>
 
-                            <x-slot name="content">
-                                <x-dropdown-link href="{{ route('projects.index') }}">
-                                    {{ __('Мої проекти') }}
-                                </x-dropdown-link>
-                                <x-dropdown-link href="{{ auth()->user()->hasRole('teacher') ? route('teacher.offers.index') : route('offers.index') }}">
-                                    {{ __('Мої заявки') }}
-                                </x-dropdown-link>
-                            </x-slot>
-                        </x-dropdown>
+                        <x-slot name="content">
+                            <x-dropdown-link href="{{ route('projects.index') }}">
+                                {{ __('Мої проекти') }}
+                            </x-dropdown-link>
+                            <x-dropdown-link href="{{ auth()->user()->hasRole('teacher') ? route('teacher.offers.index') : route('offers.index') }}">
+                                {{ __('Мої заявки') }}
+                            </x-dropdown-link>
+                        </x-slot>
+                    </x-dropdown>
 
                     <!-- Матеріали Dropdown -->
                     <x-dropdown align="left" width="48">
-                            <x-slot name="trigger">
-                                <x-nav-link href="#" :active="request()->routeIs('categories.*') || request()->routeIs('subjects.*') || request()->routeIs('technologies.*')" class="inline-flex items-center">
-                                    <div>{{ __('Матеріали') }}</div>
-                                    <div class="ms-1">
-                                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
-                                </x-nav-link>
-                            </x-slot>
+                        <x-slot name="trigger">
+                            @php
+                            $isActive = request()->routeIs('categories.*') || request()->routeIs('subjects.*') || request()->routeIs('technologies.*');
+                            $classes = $isActive
+                                ? 'inline-flex items-center px-1 pt-1 border-b-2 border-primary-400 text-sm font-medium leading-5 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-primary-700 transition duration-150 ease-in-out'
+                                : 'inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 focus:outline-none focus:text-gray-700 dark:focus:text-gray-300 focus:border-gray-300 dark:focus:border-gray-700 transition duration-150 ease-in-out';
+                            @endphp
+                            <button type="button" class="{{ $classes }}">
+                                <span>{{ __('Матеріали') }}</span>
+                                <svg class="ms-1 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </x-slot>
 
-                            <x-slot name="content">
-                                <x-dropdown-link href="{{ route('categories.index') }}">
-                                    {{ __('Категорії') }}
-                                </x-dropdown-link>
-                                <x-dropdown-link href="{{ route('subjects.index') }}">
-                                    {{ __('Предмети') }}
-                                </x-dropdown-link>
-                                <x-dropdown-link href="{{ route('technologies.index') }}">
-                                    {{ __('Технології') }}
-                                </x-dropdown-link>
-                            </x-slot>
-                        </x-dropdown>
+                        <x-slot name="content">
+                            <x-dropdown-link href="{{ route('categories.index') }}">
+                                {{ __('Категорії') }}
+                            </x-dropdown-link>
+                            <x-dropdown-link href="{{ route('subjects.index') }}">
+                                {{ __('Предмети') }}
+                            </x-dropdown-link>
+                            <x-dropdown-link href="{{ route('technologies.index') }}">
+                                {{ __('Технології') }}
+                            </x-dropdown-link>
+                        </x-slot>
+                    </x-dropdown>
                 </div>
             </div>
 

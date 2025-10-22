@@ -78,8 +78,6 @@ services:
     # =========================================================================
     # PostgreSQL Database
     # =========================================================================
-    # PRODUCTION: Порт НЕ публікується назовні для безпеки
-    # =========================================================================
     db:
         image: postgres:15-alpine
         container_name: project-management-db
@@ -95,9 +93,6 @@ services:
             - ./backups:/backups
         networks:
             - project-management-network
-        # PRODUCTION: Порт закритий! Доступ тільки через Docker network
-        # ports:
-        #     - '5432:5432'  # НЕ публікувати в production!
         healthcheck:
             test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME:-laravel} -d ${DB_DATABASE:-postgres}']
             interval: 10s
