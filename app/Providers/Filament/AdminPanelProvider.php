@@ -90,11 +90,11 @@ class AdminPanelProvider extends PanelProvider
         // Якщо додаток запущено в консолі (наприклад, 'artisan optimize' під час збірки),
         // ми НЕ МОЖЕМО звертатися до Cache/DB. Повертаємо безпечне значення.
         if (App::runningInConsole()) {
-            return Color::Amber;
+            return Color::Red;
         }
         // === КІНЕЦЬ ВИПРАВЛЕННЯ ===
 
-        $colorName = Cache::get('admin_primary_color', 'amber');
+        $colorName = Cache::get('admin_primary_color', 'red');
 
         $colors = [
             'slate' => Color::Slate,
