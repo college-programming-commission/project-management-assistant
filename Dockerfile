@@ -56,8 +56,6 @@ RUN pecl install redis \
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Configure PHP opcache
-# For development: opcache disabled for instant file changes
-# For production: opcache enabled for performance
 ARG INSTALL_DEV=true
 RUN if [ "$INSTALL_DEV" = "true" ]; then \
         echo 'opcache.enable=0' > /usr/local/etc/php/conf.d/opcache.ini; \
@@ -83,7 +81,6 @@ COPY composer.json composer.lock ./
 COPY database/ database/
 
 # Install composer dependencies
-# For development, include dev packages
 ARG INSTALL_DEV=true
 RUN if [ "$INSTALL_DEV" = "true" ]; then \
         composer install \
@@ -125,9 +122,6 @@ RUN npm ci \
 # =============================================================================
 FROM base AS app
 
-# Re-declare ARG for this stage
-ARG INSTALL_DEV=true
-
 # Copy vendor dependencies
 COPY --from=vendor /var/www/html/vendor/ /var/www/html/vendor/
 
@@ -137,7 +131,7 @@ COPY --from=assets /var/www/html/public/build/ /var/www/html/public/build/
 # Copy application code
 COPY . .
 
-# Create directories for volumes & cache (they are in .gitignore)
+# Create directories for volumes & cache
 RUN mkdir -p /var/www/html/storage/app/public \
              /var/www/html/storage/framework/sessions \
              /var/www/html/storage/framework/views \
@@ -146,19 +140,11 @@ RUN mkdir -p /var/www/html/storage/app/public \
              /var/www/html/bootstrap/cache
 
 # === ПОЧАТОК ЗМІН ===
-# Виконуємо команди збірки (Build-Time tasks)
-# "Запікаємо" асети та кеш прямо в образ.
-# Використовуємо -d opcache.enable=0 для гарантії свіжості файлів.
-RUN php -d opcache.enable=0 artisan optimize:clear
+# "Запікаємо" асети та посилання. Це БЕЗПЕЧНІ команди для збірки.
 RUN php -d opcache.enable=0 artisan storage:link
 RUN php -d opcache.enable=0 artisan filament:assets
 
-# Оптимізація (кешування) ТІЛЬКИ для production-збірки
-RUN if [ "$INSTALL_DEV" = "false" ]; then \
-        php -d opcache.enable=0 artisan optimize; \
-    else \
-        echo "Skipping optimization in dev build"; \
-    fi
+# Ми ВИДАЛИЛИ звідси `optimize:clear` та `optimize`, оскільки їм потрібна БД.
 # === КІНЕЦЬ ЗМІН ===
 
 # Set proper permissions *after* all files are generated
@@ -173,9 +159,6 @@ RUN chown -R www-data:www-data \
 # Copy and setup entrypoint
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
-
-# Note: Healthcheck disabled as ps/pgrep not available in minimal PHP-FPM image
-# In production, use external monitoring (Kubernetes liveness probes, etc.)
 
 # Expose PHP-FPM port
 EXPOSE 9000

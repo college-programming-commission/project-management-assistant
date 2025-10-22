@@ -8,14 +8,19 @@ echo "Setting up storage permissions..."
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
+# === ПОЧАТОК ЗМІН ===
+# Очищуємо кеш ЗАВЖДИ, щоб уникнути "зомбі-кешу"
+# Використовуємо -d opcache.enable=0 для гарантії
+echo "Clearing application cache (just in case)..."
+php -d opcache.enable=0 artisan optimize:clear
+# === КІНЕЦЬ ЗМІН ===
+
 # Wait for database to be ready
 echo "Waiting for database to be ready..."
 while ! nc -z db 5432; do
   sleep 0.1
 done
 echo "Database is ready."
-
-# === ЗАВДАННЯ ЧАСУ ВИКОНАННЯ (RUNTIME TASKS) ===
 
 # (Ключ все ще потрібен, на випадок, якщо .env не має його)
 if [ -z "$APP_KEY" ]; then
@@ -37,7 +42,12 @@ php -d opcache.enable=0 artisan db:seed --class=Database\\Seeders\\RolesAndPermi
 echo "Ensuring admin user exists..."
 php -d opcache.enable=0 artisan db:seed --class=Database\\Seeders\\AdminSeeder --force --no-interaction
 
-# === МИ ВИДАЛИЛИ ЗВІДСИ optimize:clear, filament:assets та optimize ===
+# === ПОЧАТОК ЗМІН ===
+# Тепер, коли БД доступна, ми можемо безпечно кешувати все
+echo "Caching configuration, routes, and views..."
+php -d opcache.enable=0 artisan optimize
+# === КІНЕЦЬ ЗМІН ===
+
 echo "Entrypoint tasks complete. Starting container command..."
 
 # Execute the main container command (e.g., "php-fpm")
