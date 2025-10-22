@@ -23,13 +23,9 @@ services:
         working_dir: /var/www/html
         env_file:
             - .env
-        # ВАЖЛИВО: Не перезаписуємо ENV з .env файлу
         volumes:
-            # Bind mount для коду - зміни відразу відображаються
-            - .:/var/www/html
-            # Виключаємо vendor та node_modules з bind mount
-            - /var/www/html/vendor
-            - /var/www/html/node_modules
+            - app-public:/var/www/html/public
+            - app-storage:/var/www/html/storage
         networks:
             project-management-network:
                 aliases:
@@ -58,7 +54,7 @@ services:
             # - '${APP_PORT_SSL:-443}:443'
         volumes:
             - ./config/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-            - ./public:/var/www/html/public:ro
+            - app-public:/var/www/html/public:ro
             # Для HTTPS додайте SSL сертифікати:
             # - ./config/ssl:/etc/nginx/ssl:ro
         networks:
@@ -113,11 +109,7 @@ services:
         image: redis:7-alpine
         container_name: project-management-redis
         restart: always
-        command: >
-            redis-server
-            --maxmemory 512mb
-            --maxmemory-policy allkeys-lru
-            --appendonly yes
+        command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
         volumes:
             - redis-data:/data
         networks:
@@ -210,6 +202,12 @@ volumes:
         driver: local
     redis-data:
         name: project-management-redis-data
+        driver: local
+    app-public:
+        name: project-management-public
+        driver: local
+    app-storage:
+        name: project-management-storage
         driver: local
     minio-data:
         name: project-management-minio
