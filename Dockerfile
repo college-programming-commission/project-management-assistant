@@ -1,3 +1,10 @@
+Ось ваш `Dockerfile`, оновлений відповідно до нашої стратегії "build-time".
+
+Я "розкоментував" ваш блок Opcache (він критично важливий для production) і переніс команди `optimize`, `storage:link` та `filament:assets` з `entrypoint.sh` безпосередньо у `Dockerfile`. Це "запікає" всі асети та кеш прямо в образ, що є найнадійнішим способом для CI/CD-систем, таких як Dokploy.
+
+Просто скопіюйте весь цей текст у ваш `Dockerfile` і відправте (`git push`).
+
+```dockerfile
 # =============================================================================
 # Stage 1: Base image with PHP and system dependencies
 # =============================================================================
@@ -58,20 +65,20 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Configure PHP opcache
 # For development: opcache disabled for instant file changes
 # For production: opcache enabled for performance
-#ARG INSTALL_DEV=true
-#RUN if [ "$INSTALL_DEV" = "true" ]; then \
-#        echo 'opcache.enable=0' > /usr/local/etc/php/conf.d/opcache.ini; \
-#    else \
-#        { \
-#            echo 'opcache.enable=1'; \
-#            echo 'opcache.memory_consumption=256'; \
-#            echo 'opcache.interned_strings_buffer=16'; \
-#            echo 'opcache.max_accelerated_files=10000'; \
-#            echo 'opcache.validate_timestamps=0'; \
-#            echo 'opcache.save_comments=1'; \
-#            echo 'opcache.fast_shutdown=1'; \
-#        } > /usr/local/etc/php/conf.d/opcache.ini; \
-#    fi
+ARG INSTALL_DEV=true
+RUN if [ "$INSTALL_DEV" = "true" ]; then \
+        echo 'opcache.enable=0' > /usr/local/etc/php/conf.d/opcache.ini; \
+    else \
+        { \
+            echo 'opcache.enable=1'; \
+            echo 'opcache.memory_consumption=256'; \
+            echo 'opcache.interned_strings_buffer=16'; \
+            echo 'opcache.max_accelerated_files=10000'; \
+            echo 'opcache.validate_timestamps=0'; \
+            echo 'opcache.save_comments=1'; \
+            echo 'opcache.fast_shutdown=1'; \
+        } > /usr/local/etc/php/conf.d/opcache.ini; \
+    fi
 
 # =============================================================================
 # Stage 2: Build vendor dependencies
@@ -125,6 +132,9 @@ RUN npm ci \
 # =============================================================================
 FROM base AS app
 
+# Re-declare ARG for this stage
+ARG INSTALL_DEV=true
+
 # Copy vendor dependencies
 COPY --from=vendor /var/www/html/vendor/ /var/www/html/vendor/
 
@@ -134,6 +144,7 @@ COPY --from=assets /var/www/html/public/build/ /var/www/html/public/build/
 # Copy application code
 COPY . .
 
+# Create directories for volumes & cache (they are in .gitignore)
 RUN mkdir -p /var/www/html/storage/app/public \
              /var/www/html/storage/framework/sessions \
              /var/www/html/storage/framework/views \
@@ -141,7 +152,23 @@ RUN mkdir -p /var/www/html/storage/app/public \
              /var/www/html/storage/logs \
              /var/www/html/bootstrap/cache
 
-# Set proper permissions
+# === ПОЧАТОК ЗМІН ===
+# Виконуємо команди збірки (Build-Time tasks)
+# "Запікаємо" асети та кеш прямо в образ.
+# Використовуємо -d opcache.enable=0 для гарантії свіжості файлів.
+RUN php -d opcache.enable=0 artisan optimize:clear
+RUN php -d opcache.enable=0 artisan storage:link
+RUN php -d opcache.enable=0 artisan filament:assets
+
+# Оптимізація (кешування) ТІЛЬКИ для production-збірки
+RUN if [ "$INSTALL_DEV" = "false" ]; then \
+        php -d opcache.enable=0 artisan optimize; \
+    else \
+        echo "Skipping optimization in dev build"; \
+    fi
+# === КІНЕЦЬ ЗМІН ===
+
+# Set proper permissions *after* all files are generated
 RUN chown -R www-data:www-data \
         /var/www/html/storage \
         /var/www/html/bootstrap/cache \
@@ -162,3 +189,4 @@ EXPOSE 9000
 
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["php-fpm"]
+```

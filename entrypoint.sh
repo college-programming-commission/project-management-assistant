@@ -1,20 +1,12 @@
 #!/bin/bash
-
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
-# Ensure storage directories exist with correct permissions
-echo "Setting up storage directories..."
-mkdir -p /var/www/html/storage/logs
-mkdir -p /var/www/html/storage/framework/{sessions,views,cache}
-mkdir -p /var/www/html/storage/app/public
-mkdir -p /var/www/html/bootstrap/cache
-
-# Set proper ownership and permissions
+# (Ми все ще запускаємо 'chown', це безпечно і корисно
+# для вольюму 'app-storage', який підключається під час запуску)
+echo "Setting up storage permissions..."
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-
-php artisan optimize:clear
 
 # Wait for database to be ready
 echo "Waiting for database to be ready..."
@@ -23,40 +15,30 @@ while ! nc -z db 5432; do
 done
 echo "Database is ready."
 
-# Generate app key if it doesn't exist
+# === ЗАВДАННЯ ЧАСУ ВИКОНАННЯ (RUNTIME TASKS) ===
+
+# (Ключ все ще потрібен, на випадок, якщо .env не має його)
 if [ -z "$APP_KEY" ]; then
     echo "Generating application key..."
-    php artisan key:generate --force
+    php -d opcache.enable=0 artisan key:generate --force
 else
     echo "Application key already exists."
 fi
 
 # Run database migrations
 echo "Running database migrations..."
-php artisan migrate --force --no-interaction
+php -d opcache.enable=0 artisan migrate --force --no-interaction
 
 # Seed roles and permissions if they don't exist
 echo "Checking roles and permissions..."
-php artisan db:seed --class=Database\\Seeders\\RolesAndPermissionsSeeder --force --no-interaction || true
+php -d opcache.enable=0 artisan db:seed --class=Database\\Seeders\\RolesAndPermissionsSeeder --force --no-interaction || true
 
 # Create admin user (always runs, idempotent)
 echo "Ensuring admin user exists..."
-php artisan db:seed --class=Database\\Seeders\\AdminSeeder --force --no-interaction
+php -d opcache.enable=0 artisan db:seed --class=Database\\Seeders\\AdminSeeder --force --no-interaction
 
-echo "Creating storage link..."
-php artisan storage:link
-
-# Публікуємо асети Filament (CSS/JS/Fonts)
-echo "Publishing Filament assets..."
-php artisan filament:assets
-
-# Optimize application (only in production with debug off)
-if [ "$APP_DEBUG" = "false" ] && [ "$APP_ENV" = "production" ]; then
-    echo "Caching configuration, routes, and views..."
-    php artisan optimize
-else
-    echo "Skipping optimization (APP_DEBUG=${APP_DEBUG}, APP_ENV=${APP_ENV})"
-fi
+# === МИ ВИДАЛИЛИ ЗВІДСИ optimize:clear, filament:assets та optimize ===
+echo "Entrypoint tasks complete. Starting container command..."
 
 # Execute the main container command (e.g., "php-fpm")
 exec "$@"
