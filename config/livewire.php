@@ -77,7 +77,7 @@ return [
         'cleanup' => true, // Should cleanup temporary uploads older than 24 hrs...
         's3' => [
             'domain' => env('AWS_URL'),
-            'endpoint' => 'https://s3.kafedra.phfk.college',
+            'endpoint' => env('AWS_ENDPOINT'),
             'options' => [],
         ],
     ],
