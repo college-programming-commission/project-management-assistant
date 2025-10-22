@@ -3,7 +3,7 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
-php artisan config:clear
+php artisan optimize:clear
 
 # Wait for database to be ready
 echo "Waiting for database to be ready..."
@@ -41,9 +41,13 @@ else
     echo "Frontend assets already built."
 fi
 
-# Optimize application
-echo "Caching configuration, routes, and views..."
-php artisan optimize
+# Optimize application (only in production with debug off)
+if [ "$APP_DEBUG" = "false" ] && [ "$APP_ENV" = "production" ]; then
+    echo "Caching configuration, routes, and views..."
+    php artisan optimize
+else
+    echo "Skipping optimization (APP_DEBUG=${APP_DEBUG}, APP_ENV=${APP_ENV})"
+fi
 
 # Execute the main container command (e.g., "php-fpm")
 exec "$@"

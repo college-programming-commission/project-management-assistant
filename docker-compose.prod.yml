@@ -21,11 +21,6 @@ services:
         container_name: project-management-app
         restart: always
         working_dir: /var/www/html
-        env_file:
-            - .env
-        environment:
-            - APP_ENV=production
-            - APP_DEBUG=false
         volumes:
             - app-public:/var/www/html/public
             - app-storage:/var/www/html/storage
@@ -141,11 +136,6 @@ services:
         container_name: project-management-reverb
         restart: always
         command: php artisan reverb:start --host=0.0.0.0 --port=8080
-        env_file:
-            - .env
-        environment:
-            - APP_ENV=production
-            - APP_DEBUG=false
         ports:
             - '${REVERB_EXTERNAL_PORT:-8081}:8080'
         networks:
