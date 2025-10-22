@@ -3,6 +3,17 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
+# Ensure storage directories exist with correct permissions
+echo "Setting up storage directories..."
+mkdir -p /var/www/html/storage/logs
+mkdir -p /var/www/html/storage/framework/{sessions,views,cache}
+mkdir -p /var/www/html/storage/app/public
+mkdir -p /var/www/html/bootstrap/cache
+
+# Set proper ownership and permissions
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
 php artisan optimize:clear
 
 # Wait for database to be ready
