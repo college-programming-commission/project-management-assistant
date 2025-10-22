@@ -99,17 +99,18 @@ RUN mkdir -p /var/www/html/storage/app/public \
              /var/www/html/bootstrap/cache
 
 # === ПОЧАТОК "ЯДЕРНОГО" ВИПРАВЛЕННЯ ===
-# Ми "обдурюємо" Artisan, щоб він не намагався підключитися до БД/Redis під час збірки.
-# Це дозволяє нам "запекти" асети та кеш прямо в образ.
+# "Обдурюємо" Artisan, щоб він не намагався підключитися до БД/Redis під час збірки.
 ENV CACHE_DRIVER=file
 ENV DB_CONNECTION=sqlite
 ENV QUEUE_CONNECTION=sync
 ENV SESSION_DRIVER=file
 RUN touch /var/www/html/database/database.sqlite
 
-# "Запікаємо" асети та кеш.
+# "Брутально" видаляємо кеш, оскільки `artisan optimize:clear` "падає"
+RUN rm -f /var/www/html/bootstrap/cache/*.php
+
+# "Запікаємо" асети та посилання.
 # (Тепер це не "впаде", оскільки AdminPanelProvider безпечний)
-RUN php -d opcache.enable=0 artisan optimize:clear
 RUN php -d opcache.enable=0 artisan storage:link
 RUN php -d opcache.enable=0 artisan filament:assets
 
