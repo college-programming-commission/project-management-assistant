@@ -45,5 +45,9 @@ php -d opcache.enable=0 artisan filament:assets
 echo "Caching configuration, routes, and views..."
 php -d opcache.enable=0 artisan optimize
 
+# Setup MinIO
+echo "Setting up MinIO buckets..."
+php setup-minio.php || echo "Warning: MinIO setup failed"
+
 echo "Entrypoint tasks complete. Starting container command..."
 exec "$@"
