@@ -190,6 +190,24 @@ services:
                 max-size: '10m'
                 max-file: '3'
 
+    # =========================================================================
+    # MinIO Initialization (CORS & Bucket Setup)
+    # =========================================================================
+    minio-init:
+        image: minio/mc:latest
+        container_name: project-management-minio-init
+        env_file:
+            - .env
+        volumes:
+            - ./init-minio.sh:/init-minio.sh:ro
+        entrypoint: /bin/sh /init-minio.sh
+        networks:
+            - project-management-network
+        depends_on:
+            minio:
+                condition: service_healthy
+        restart: on-failure
+
 # =============================================================================
 # Networks
 # =============================================================================

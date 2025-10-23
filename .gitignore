@@ -5,6 +5,7 @@
 .env
 .env.*
 !.env.example
+prod.env
 
 # Конфігурація Composer для приватних репозиторіїв
 /auth.json
