@@ -8,7 +8,7 @@ import 'easymde/dist/easymde.min.css'
 // Робимо EasyMDE доступним глобально
 window.EasyMDE = EasyMDE
 
-// Спрощена функція для зміни кольорової теми
+// Спрощена функція для зміни кольорової теми - повністю незалежна
 window.setColorTheme = function (theme) {
     // Видаляємо всі можливі теми
     document.documentElement.classList.remove(
@@ -28,15 +28,30 @@ window.setColorTheme = function (theme) {
     // Зберігаємо тему в localStorage
     localStorage.setItem('colorTheme', theme)
 
-    // Оновлюємо активні кнопки (з невеликою затримкою, щоб дочекатись DOM)
-    setTimeout(() => {
-        document.querySelectorAll('.color-theme-btn').forEach((btn) => {
-            btn.classList.remove('active')
-            if (btn.dataset.theme === theme) {
-                btn.classList.add('active')
+    // Оновлюємо активні кнопки негайно
+    document.querySelectorAll('.color-theme-btn').forEach((btn) => {
+        btn.classList.remove('active')
+        if (btn.dataset.theme === theme) {
+            btn.classList.add('active')
+        }
+    })
+
+    // Якщо існує Alpine.js компонент, то оновлюємо його стан (для сумісності)
+    if (window.Alpine) {
+        setTimeout(() => {
+            try {
+                // Спробуємо оновити Alpine.js стан, якщо він існує
+                document.querySelectorAll('[x-data*="activeTheme"]').forEach((el) => {
+                    const data = Alpine.$data(el)
+                    if (data && data.activeTheme !== undefined) {
+                        data.activeTheme = theme
+                    }
+                })
+            } catch (e) {
+                // Якщо Alpine ще не ініціалізувався або не існує, просто ігноруємо
             }
-        })
-    }, 0)
+        }, 0)
+    }
 }
 
 // Спрощена функція для перемикання темного/світлого режиму
@@ -47,6 +62,22 @@ window.toggleDarkMode = function () {
     } else {
         document.documentElement.classList.add('dark')
         localStorage.setItem('theme', 'dark')
+    }
+
+    // Якщо існує Alpine.js компонент для темного режиму, то оновлюємо його стан (для сумісності)
+    if (window.Alpine) {
+        setTimeout(() => {
+            try {
+                document.querySelectorAll('[x-data*="darkMode"]').forEach((el) => {
+                    const data = Alpine.$data(el)
+                    if (data && data.darkMode !== undefined) {
+                        data.darkMode = document.documentElement.classList.contains('dark')
+                    }
+                })
+            } catch (e) {
+                // Якщо Alpine ще не ініціалізувався або не існує, просто ігноруємо
+            }
+        }, 0)
     }
 }
 
