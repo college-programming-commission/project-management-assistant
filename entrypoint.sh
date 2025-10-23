@@ -1,6 +1,14 @@
 #!/bin/bash
 set -e
 
+# === КОПІЮВАННЯ PUBLIC ФАЙЛІВ В VOLUME ===
+if [ ! -f /var/www/html/public/index.php ]; then
+    echo "Initializing public volume with assets from image..."
+    cp -rp /var/www/html-build/public/* /var/www/html/public/
+    echo "Public files copied to volume."
+fi
+# === КІНЕЦЬ КОПІЮВАННЯ ===
+
 # === СПРОЩЕНЕ ОЧИЩЕННЯ ===
 echo "Force deleting ALL stale cache files..."
 rm -f /var/www/html/bootstrap/cache/*.php
@@ -9,8 +17,8 @@ echo "Stale cache files deleted."
 
 # Permissions
 echo "Setting up storage permissions..."
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
+chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
 
 # Clear cache via Artisan
 echo "Clearing application cache (Artisan)..."

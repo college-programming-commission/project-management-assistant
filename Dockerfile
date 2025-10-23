@@ -91,6 +91,10 @@ COPY --from=vendor /var/www/html/vendor/ /var/www/html/vendor/
 COPY --from=assets /var/www/html/public/build/ /var/www/html/public/build/
 COPY . .
 
+# Backup public/ for volume initialization
+RUN mkdir -p /var/www/html-build && \
+    cp -rp /var/www/html/public /var/www/html-build/
+
 # Create directories for volumes & cache
 RUN mkdir -p /var/www/html/storage/app/public \
              /var/www/html/storage/framework/sessions \
@@ -99,14 +103,12 @@ RUN mkdir -p /var/www/html/storage/app/public \
              /var/www/html/storage/logs \
              /var/www/html/bootstrap/cache
 
-# We do NOT run any 'artisan' commands here.
-# They will be executed by entrypoint.sh *after* the DB is ready.
-
 # Set proper permissions
 RUN chown -R www-data:www-data \
         /var/www/html/storage \
         /var/www/html/bootstrap/cache \
         /var/www/html/public \
+        /var/www/html-build \
     && chmod -R 775 \
         /var/www/html/storage \
         /var/www/html/bootstrap/cache
