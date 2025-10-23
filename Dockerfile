@@ -78,12 +78,12 @@ RUN echo "=== BUILDING ASSETS ===" \
 FROM base AS app
 WORKDIR /var/www/html
 
-# Copy application code FIRST (without build/)
+# Copy vendor dependencies
 COPY --from=vendor /var/www/html/vendor/ /var/www/html/vendor/
-COPY . .
-
-# Copy fresh build from assets stage AFTER main copy to prevent overwrite
+# Copy built assets
 COPY --from=assets /var/www/html/public/build/ /var/www/html/public/build/
+# Copy the rest of the application code
+COPY . .
 
 # Create directories for volumes & cache
 RUN mkdir -p /var/www/html/storage/app/public \
