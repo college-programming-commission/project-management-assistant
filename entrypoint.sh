@@ -8,17 +8,11 @@ chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/p
 
 # Clear ALL caches
 echo "Clearing application cache (Artisan)..."
-php -d opcache.enable=0 artisan optimize:clear
-php -d opcache.enable=0 artisan view:clear
-php -d opcache.enable=0 artisan cache:clear
-php -d opcache.enable=0 artisan config:clear
-php -d opcache.enable=0 artisan route:clear
-
-# Clear PHP opcache if enabled
-if php -r "exit(function_exists('opcache_reset') ? 0 : 1);"; then
-    echo "Resetting PHP opcache..."
-    php -r "opcache_reset();"
-fi
+php artisan optimize:clear
+php artisan view:clear
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
 
 echo "All caches cleared."
 

@@ -33,21 +33,6 @@ RUN pecl install redis \
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Configure PHP opcache
-ARG INSTALL_DEV=true
-RUN if [ "$INSTALL_DEV" = "true" ]; then \
-        echo 'opcache.enable=0' > /usr/local/etc/php/conf.d/opcache.ini; \
-    else \
-        { \
-            echo 'opcache.enable=1'; \
-            echo 'opcache.memory_consumption=256'; \
-            echo 'opcache.interned_strings_buffer=16'; \
-            echo 'opcache.max_accelerated_files=10000'; \
-            echo 'opcache.validate_timestamps=0'; \
-            echo 'opcache.save_comments=1'; \
-            echo 'opcache.fast_shutdown=1'; \
-        } > /usr/local/etc/php/conf.d/opcache.ini; \
-    fi
 
 # =============================================================================
 # Stage 2: Build vendor dependencies
