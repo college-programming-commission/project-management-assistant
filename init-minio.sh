@@ -19,12 +19,18 @@ fi
 
 echo "MinIO is ready! Configuring CORS..."
 
+# Install AWS CLI if not present
+if ! command -v aws &> /dev/null; then
+    echo "Installing AWS CLI..."
+    apk add --no-cache aws-cli python3 py3-pip
+fi
+
 echo "Creating bucket if it doesn't exist..."
 mc mb myminio/${AWS_BUCKET} --ignore-existing
 
 echo "Setting up CORS policy for bucket: ${AWS_BUCKET}"
 
-# Create CORS policy configuration in AWS S3 format
+# Create CORS policy configuration in AWS S3 JSON format for aws-cli
 cat > /tmp/cors.json <<'EOF'
 {
   "CORSRules": [
@@ -39,19 +45,31 @@ cat > /tmp/cors.json <<'EOF'
 }
 EOF
 
-# Apply CORS configuration to the bucket
-echo "Applying CORS configuration..."
-mc cors set /tmp/cors.json myminio/${AWS_BUCKET}
+# Apply CORS configuration using AWS CLI
+echo "Applying CORS configuration using AWS S3 API..."
+AWS_ACCESS_KEY_ID="${MINIO_ROOT_USER}" \
+AWS_SECRET_ACCESS_KEY="${MINIO_ROOT_PASSWORD}" \
+aws --endpoint-url http://minio:9000 \
+    s3api put-bucket-cors \
+    --bucket "${AWS_BUCKET}" \
+    --cors-configuration file:///tmp/cors.json
 
 echo "Setting public read policy for bucket..."
 mc anonymous set download myminio/${AWS_BUCKET}
 
 echo ""
 echo "Verifying CORS configuration..."
-mc cors get myminio/${AWS_BUCKET} || echo "Warning: Could not retrieve CORS config for verification"
+AWS_ACCESS_KEY_ID="${MINIO_ROOT_USER}" \
+AWS_SECRET_ACCESS_KEY="${MINIO_ROOT_PASSWORD}" \
+aws --endpoint-url http://minio:9000 \
+    s3api get-bucket-cors \
+    --bucket "${AWS_BUCKET}" || echo "Warning: Could not retrieve CORS config for verification"
 
 echo ""
 echo "✅ MinIO CORS configuration completed successfully!"
 echo "Bucket: ${AWS_BUCKET}"
 echo "CORS: Enabled for all origins (*)"
 echo "Public read: Enabled"
+echo ""
+echo "You can verify CORS is working by:"
+echo "  curl -I -X OPTIONS https://s3-kafedra.phfk.college/${AWS_BUCKET}/"

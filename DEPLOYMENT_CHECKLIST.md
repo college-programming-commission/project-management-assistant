@@ -77,7 +77,16 @@ LIVEWIRE_S3_ENDPOINT=https://s3-kafedra.phfk.college
 
 2. **Перевірити CORS policy:**
    ```bash
-   curl -I https://s3-kafedra.phfk.college/local/
+   # Перевірка OPTIONS запиту (preflight)
+   curl -I -X OPTIONS \
+     -H "Origin: https://kafedra.phfk.college" \
+     -H "Access-Control-Request-Method: PUT" \
+     https://s3-kafedra.phfk.college/local/
+   
+   # Має повернути headers:
+   # Access-Control-Allow-Origin: *
+   # Access-Control-Allow-Methods: GET, HEAD, PUT, POST, DELETE
+   # Access-Control-Allow-Headers: *
    ```
 
 3. **Тест завантаження файлу:**
@@ -95,10 +104,16 @@ docker logs project-management-minio
 # Перевірити мережу
 docker exec project-management-minio-init ping -c 3 minio
 
-# Вручну виконати налаштування
-docker exec -it project-management-minio mc alias set myminio http://localhost:9000 minioadmin YOUR_PASSWORD
-docker exec -it project-management-minio mc mb myminio/local --ignore-existing
-docker exec -it project-management-minio mc cors set /tmp/cors.json myminio/local
+# Вручну виконати налаштування через AWS CLI
+docker exec -it project-management-minio sh -c '
+  apk add --no-cache aws-cli &&
+  AWS_ACCESS_KEY_ID=minioadmin \
+  AWS_SECRET_ACCESS_KEY=YOUR_PASSWORD \
+  aws --endpoint-url http://localhost:9000 \
+      s3api put-bucket-cors \
+      --bucket local \
+      --cors-configuration "{\"CORSRules\":[{\"AllowedOrigins\":[\"*\"],\"AllowedMethods\":[\"GET\",\"HEAD\",\"PUT\",\"POST\",\"DELETE\"],\"AllowedHeaders\":[\"*\"]}]}"
+'
 ```
 
 ### ❌ CORS помилка все ще є:

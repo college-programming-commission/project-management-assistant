@@ -118,14 +118,16 @@ minio-init:
 ### init-minio.sh
 Автоматично налаштовує:
 - Чекає доступності MinIO через `mc alias set` (до 30 спроб по 3 сек)
+- Встановлює AWS CLI (якщо відсутній) для налаштування CORS
 - Створення bucket `local` (якщо не існує)
-- CORS policy в AWS S3 форматі:
+- CORS policy через AWS S3 API (`aws s3api put-bucket-cors`):
   - `AllowedOrigins`: `*` (всі домени)
   - `AllowedMethods`: `GET`, `HEAD`, `PUT`, `POST`, `DELETE`
   - `AllowedHeaders`: `*` (всі headers)
   - `ExposeHeaders`: `ETag`, `x-amz-request-id`, `x-amz-id-2`
   - `MaxAgeSeconds`: `3000` (50 хвилин кешування preflight)
 - Public read доступ до bucket через `mc anonymous set download`
+- Верифікація CORS через `aws s3api get-bucket-cors`
 
 **CORS JSON приклад:**
 ```json
@@ -143,8 +145,9 @@ minio-init:
 ```
 
 **Важливо:** 
-- Скрипт використовує `mc cors set` а не `mc anonymous set-json` (остання для IAM policy)
-- Формат CORS має відповідати AWS S3 CORS XML Schema
+- Скрипт використовує **AWS CLI** (`aws s3api`) замість MinIO Client для CORS, оскільки MinIO повністю S3-сумісний
+- MinIO Client (`mc`) використовується тільки для створення bucket та IAM policy
+- AWS CLI встановлюється динамічно в контейнері при першому запуску
 
 ## Архітектура URL і Потоки даних
 
