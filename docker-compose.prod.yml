@@ -195,13 +195,16 @@ services:
     # MinIO Initialization (CORS & Bucket Setup)
     # =========================================================================
     minio-init:
-        image: minio/mc:latest
+        build:
+            context: .
+            dockerfile: Dockerfile.minio-init
+        image: project-management-minio-init:latest
         container_name: project-management-minio-init
         env_file:
             - .env
         volumes:
             - ./init-minio.sh:/init-minio.sh:ro
-        entrypoint: /bin/sh /init-minio.sh
+        entrypoint: /bin/bash /init-minio.sh
         networks:
             - project-management-network
         depends_on:

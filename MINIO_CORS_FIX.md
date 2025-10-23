@@ -83,17 +83,28 @@ docker logs project-management-app
 - `AWS_URL=https://s3-kafedra.phfk.college/local` - публічний URL для генерації постійних посилань на файли
 - `LIVEWIRE_S3_ENDPOINT=https://s3-kafedra.phfk.college` - публічний URL для Livewire pre-signed URLs (браузер клієнта завантажує файли напряму)
 
+### Dockerfile.minio-init (НОВИЙ ФАЙЛ)
+Створено окремий Dockerfile для minio-init контейнера:
+```dockerfile
+FROM alpine:3.19
+# Встановлює bash, curl, wget, aws-cli
+# Завантажує MinIO Client (mc)
+```
+
 ### docker-compose.prod.yml
-Додано новий сервіс `minio-init`:
+Додано новий сервіс `minio-init` з build:
 ```yaml
 minio-init:
-    image: minio/mc:latest
+    build:
+        context: .
+        dockerfile: Dockerfile.minio-init
+    image: project-management-minio-init:latest
     container_name: project-management-minio-init
     env_file:
         - .env
     volumes:
         - ./init-minio.sh:/init-minio.sh:ro
-    entrypoint: /bin/sh /init-minio.sh
+    entrypoint: /bin/bash /init-minio.sh
     networks:
         - project-management-network
     depends_on:

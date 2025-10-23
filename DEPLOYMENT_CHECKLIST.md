@@ -22,28 +22,32 @@ cp prod.env .env
 # 4. Зробити init-minio.sh виконуваним
 chmod +x init-minio.sh
 
-# 5. Перезапустити контейнери
+# 5. Побудувати minio-init образ (ВАЖЛИВО!)
+docker-compose -f docker-compose.prod.yml build minio-init
+
+# 6. Зупинити контейнери
 docker-compose -f docker-compose.prod.yml down
+
+# 7. Запустити контейнери заново
 docker-compose -f docker-compose.prod.yml up -d
 
-# 6. Перевірити логи
-docker logs project-management-minio-init
-docker logs project-management-app
-docker logs project-management-minio
+# 8. Перевірити логи minio-init (має завершитись успішно за ~30 сек)
+docker logs -f project-management-minio-init
 
-# 7. Перевірити статус контейнерів
+# 9. Перевірити статус контейнерів
 docker ps
 ```
 
 ## Змінені файли:
 
 ### ✅ Створені нові файли:
+- `Dockerfile.minio-init` - **НОВИЙ** образ з MinIO Client + AWS CLI
 - `init-minio.sh` - скрипт автоматичного налаштування CORS для MinIO
 - `MINIO_CORS_FIX.md` - докладна документація
 - `DEPLOYMENT_CHECKLIST.md` - цей файл
 
 ### ✅ Оновлені файли:
-- `docker-compose.prod.yml` - додано сервіс `minio-init`
+- `docker-compose.prod.yml` - додано сервіс `minio-init` з build
 - `config/livewire.php` - виправлено S3 endpoint для temporary uploads
 - `prod.env` - додано `LIVEWIRE_S3_ENDPOINT` і виправлено `AWS_ENDPOINT`
 - `.env` (локальний) - додано `LIVEWIRE_S3_ENDPOINT` для розробки

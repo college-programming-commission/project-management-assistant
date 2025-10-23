@@ -1,0 +1,22 @@
+# =============================================================================
+# MinIO Initialization Container
+# Includes both MinIO Client (mc) and AWS CLI for CORS configuration
+# =============================================================================
+FROM alpine:3.19
+
+# Install required tools
+RUN apk add --no-cache \
+    bash \
+    curl \
+    wget \
+    aws-cli \
+    ca-certificates
+
+# Install MinIO Client
+RUN wget -q https://dl.min.io/client/mc/release/linux-amd64/mc -O /usr/local/bin/mc && \
+    chmod +x /usr/local/bin/mc
+
+# Verify installations
+RUN mc --version && aws --version
+
+ENTRYPOINT ["/bin/bash"]

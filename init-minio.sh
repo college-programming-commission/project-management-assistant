@@ -19,11 +19,11 @@ fi
 
 echo "MinIO is ready! Configuring CORS..."
 
-# Install AWS CLI if not present
-if ! command -v aws &> /dev/null; then
-    echo "Installing AWS CLI..."
-    apk add --no-cache aws-cli python3 py3-pip
-fi
+# Verify tools are available
+echo "Checking required tools..."
+command -v mc >/dev/null 2>&1 || { echo "ERROR: MinIO Client (mc) not found!"; exit 1; }
+command -v aws >/dev/null 2>&1 || { echo "ERROR: AWS CLI not found!"; exit 1; }
+echo "All required tools are available."
 
 echo "Creating bucket if it doesn't exist..."
 mc mb myminio/${AWS_BUCKET} --ignore-existing
