@@ -24,27 +24,34 @@ mc mb myminio/${AWS_BUCKET} --ignore-existing
 
 echo "Setting up CORS policy for bucket: ${AWS_BUCKET}"
 
-# Create CORS policy configuration
-cat > /tmp/cors.json <<EOF
+# Create CORS policy configuration in AWS S3 format
+cat > /tmp/cors.json <<'EOF'
 {
   "CORSRules": [
     {
       "AllowedOrigins": ["*"],
       "AllowedMethods": ["GET", "HEAD", "PUT", "POST", "DELETE"],
       "AllowedHeaders": ["*"],
-      "ExposeHeaders": ["ETag", "x-amz-request-id", "x-amz-id-2"]
+      "ExposeHeaders": ["ETag", "x-amz-request-id", "x-amz-id-2"],
+      "MaxAgeSeconds": 3000
     }
   ]
 }
 EOF
 
 # Apply CORS configuration to the bucket
-mc anonymous set-json /tmp/cors.json myminio/${AWS_BUCKET} || true
-
-# Alternative: Set CORS via mc cors command (newer versions)
+echo "Applying CORS configuration..."
 mc cors set /tmp/cors.json myminio/${AWS_BUCKET}
 
 echo "Setting public read policy for bucket..."
 mc anonymous set download myminio/${AWS_BUCKET}
 
-echo "MinIO CORS configuration completed successfully!"
+echo ""
+echo "Verifying CORS configuration..."
+mc cors get myminio/${AWS_BUCKET} || echo "Warning: Could not retrieve CORS config for verification"
+
+echo ""
+echo "✅ MinIO CORS configuration completed successfully!"
+echo "Bucket: ${AWS_BUCKET}"
+echo "CORS: Enabled for all origins (*)"
+echo "Public read: Enabled"

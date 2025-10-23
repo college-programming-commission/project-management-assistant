@@ -67,7 +67,13 @@ LIVEWIRE_S3_ENDPOINT=https://s3-kafedra.phfk.college
    ```bash
    docker logs project-management-minio-init
    ```
-   Має показати: "MinIO CORS configuration completed successfully!"
+   Має показати:
+   ```
+   ✅ MinIO CORS configuration completed successfully!
+   Bucket: local
+   CORS: Enabled for all origins (*)
+   Public read: Enabled
+   ```
 
 2. **Перевірити CORS policy:**
    ```bash
@@ -80,6 +86,20 @@ LIVEWIRE_S3_ENDPOINT=https://s3-kafedra.phfk.college
    - Перевірити DevTools → Network → немає CORS помилок
 
 ## Troubleshooting:
+
+### ❌ minio-init зависає на "Waiting for MinIO to be ready":
+```bash
+# Перевірити MinIO контейнер
+docker logs project-management-minio
+
+# Перевірити мережу
+docker exec project-management-minio-init ping -c 3 minio
+
+# Вручну виконати налаштування
+docker exec -it project-management-minio mc alias set myminio http://localhost:9000 minioadmin YOUR_PASSWORD
+docker exec -it project-management-minio mc mb myminio/local --ignore-existing
+docker exec -it project-management-minio mc cors set /tmp/cors.json myminio/local
+```
 
 ### ❌ CORS помилка все ще є:
 ```bash

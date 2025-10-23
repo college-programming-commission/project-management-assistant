@@ -119,13 +119,32 @@ minio-init:
 Автоматично налаштовує:
 - Чекає доступності MinIO через `mc alias set` (до 30 спроб по 3 сек)
 - Створення bucket `local` (якщо не існує)
-- CORS policy для всіх origins: `*`
-- Дозволені методи: `GET`, `HEAD`, `PUT`, `POST`, `DELETE`
-- Дозволені headers: всі `*`
-- Expose headers: `ETag`, `x-amz-request-id`, `x-amz-id-2`
-- Public read доступ до bucket
+- CORS policy в AWS S3 форматі:
+  - `AllowedOrigins`: `*` (всі домени)
+  - `AllowedMethods`: `GET`, `HEAD`, `PUT`, `POST`, `DELETE`
+  - `AllowedHeaders`: `*` (всі headers)
+  - `ExposeHeaders`: `ETag`, `x-amz-request-id`, `x-amz-id-2`
+  - `MaxAgeSeconds`: `3000` (50 хвилин кешування preflight)
+- Public read доступ до bucket через `mc anonymous set download`
 
-**Важливо:** Скрипт використовує MinIO Client (`mc`) для перевірки доступності, що надійніше ніж curl/wget.
+**CORS JSON приклад:**
+```json
+{
+  "CORSRules": [
+    {
+      "AllowedOrigins": ["*"],
+      "AllowedMethods": ["GET", "HEAD", "PUT", "POST", "DELETE"],
+      "AllowedHeaders": ["*"],
+      "ExposeHeaders": ["ETag", "x-amz-request-id", "x-amz-id-2"],
+      "MaxAgeSeconds": 3000
+    }
+  ]
+}
+```
+
+**Важливо:** 
+- Скрипт використовує `mc cors set` а не `mc anonymous set-json` (остання для IAM policy)
+- Формат CORS має відповідати AWS S3 CORS XML Schema
 
 ## Архітектура URL і Потоки даних
 
