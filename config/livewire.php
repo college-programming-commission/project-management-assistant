@@ -64,7 +64,7 @@ return [
     */
 
     'temporary_file_upload' => [
-        'disk' => null,           // Використовуємо дефолтний s3
+        'disk' => 'livewire',
         'rules' => null,
         'directory' => null,
         'middleware' => null,
