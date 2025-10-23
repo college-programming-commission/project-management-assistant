@@ -39,9 +39,14 @@ echo "Setting up storage permissions..."
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
 
-# Clear cache via Artisan
+# Clear ALL caches
 echo "Clearing application cache (Artisan)..."
 php -d opcache.enable=0 artisan optimize:clear
+php -d opcache.enable=0 artisan view:clear
+php -d opcache.enable=0 artisan cache:clear
+php -d opcache.enable=0 artisan config:clear
+php -d opcache.enable=0 artisan route:clear
+echo "All caches cleared."
 
 # Wait for DB & Redis
 echo "Waiting for database..."
