@@ -6,7 +6,7 @@ LABEL maintainer="it_commission_college@uzhnu.edu.ua"
 LABEL description="Project Management Assistant - Base image"
 WORKDIR /var/www/html
 
-LABEL force-rebuild="2025-10-22-v2"
+LABEL force-rebuild="2025-10-24"
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
