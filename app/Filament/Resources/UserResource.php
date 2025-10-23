@@ -214,6 +214,7 @@ class UserResource extends Resource
 
                         FileUpload::make('avatar')
                             ->disk(env('FILAMENT_FILESYSTEM_DISK', 's3'))
+                            ->visibility('public')
                             ->label('Аватар')
                             ->image()
                             ->directory('avatars')

@@ -172,6 +172,7 @@ class SubjectResource extends Resource
 
                         FileUpload::make('image')
                             ->disk(env('FILAMENT_FILESYSTEM_DISK', 's3'))
+                            ->visibility('public')
                             ->label('Зображення')
                             ->image()
                             ->directory('subjects')

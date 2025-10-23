@@ -19,6 +19,11 @@ try {
     $livewireDisk->put('test.txt', 'Livewire MinIO is working! ' . date('Y-m-d H:i:s'));
     echo "✓ Livewire S3 disk is accessible\n";
 
+    // Налаштувати публічний доступ для аватарок
+    echo "Setting public access for avatars...\n";
+    $disk->setVisibility('avatars', 'public');
+    echo "✓ Public access configured\n";
+
     echo "✓ MinIO setup completed successfully!\n";
     exit(0);
 
