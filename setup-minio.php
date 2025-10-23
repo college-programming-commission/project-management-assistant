@@ -16,7 +16,7 @@ try {
     $s3Client = new \Aws\S3\S3Client([
         'version' => 'latest',
         'region' => config('filesystems.disks.s3.region'),
-        'endpoint' => str_replace('https://', 'http://', config('filesystems.disks.s3.endpoint')),
+        'endpoint' => config('filesystems.disks.s3.endpoint'),
         'use_path_style_endpoint' => config('filesystems.disks.s3.use_path_style_endpoint'),
         'credentials' => [
             'key' => config('filesystems.disks.s3.key'),
