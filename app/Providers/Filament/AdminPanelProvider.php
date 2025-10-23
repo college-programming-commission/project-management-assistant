@@ -33,6 +33,10 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->spa() // Enable SPA mode (Filament v4 syntax)
+            ->renderHook(
+                'panels::body.end',
+                fn () => view('vendor.filament-panels.components.scripts.spa-fallback')
+            )
             ->login()
             ->colors([
                 'primary' => $this->getPrimaryColor(),
