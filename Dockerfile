@@ -91,13 +91,20 @@ RUN npm ci \
 FROM base AS app
 WORKDIR /var/www/html
 
+# Copy application code FIRST (without build/)
 COPY --from=vendor /var/www/html/vendor/ /var/www/html/vendor/
-COPY --from=assets /var/www/html/public/build/ /var/www/html/public/build/
 COPY . .
 
-# Backup public/ for volume initialization
-RUN mkdir -p /var/www/html-build && \
-    cp -rp /var/www/html/public /var/www/html-build/
+# Create backup directory structure
+RUN mkdir -p /var/www/html-build/public
+
+# Copy fresh build from assets stage AFTER main copy to prevent overwrite
+COPY --from=assets /var/www/html/public/build/ /var/www/html/public/build/
+
+# Backup entire public/ including fresh build
+RUN cp -rp /var/www/html/public/* /var/www/html-build/public/ && \
+    echo "Backup created at: $(date)" && \
+    ls -lh /var/www/html-build/public/build/ | head -5
 
 # Create directories for volumes & cache
 RUN mkdir -p /var/www/html/storage/app/public \
