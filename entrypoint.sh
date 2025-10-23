@@ -1,13 +1,25 @@
 #!/bin/bash
 set -e
 
-# === КОПІЮВАННЯ PUBLIC ФАЙЛІВ В VOLUME ===
+# === СИНХРОНІЗАЦІЯ PUBLIC ФАЙЛІВ З ОБРАЗУ ===
+echo "Syncing public directory from image..."
+
+# Завжди копіюємо static files якщо їх немає
 if [ ! -f /var/www/html/public/index.php ]; then
-    echo "Initializing public volume with assets from image..."
-    cp -rp /var/www/html-build/public/* /var/www/html/public/
-    echo "Public files copied to volume."
+    echo "Copying core public files..."
+    cp -rp /var/www/html-build/public/* /var/www/html/public/ 2>/dev/null || true
 fi
-# === КІНЕЦЬ КОПІЮВАННЯ ===
+
+# ЗАВЖДИ оновлюємо build/ директорію (Vite assets)
+if [ -d /var/www/html-build/public/build ]; then
+    echo "Updating Vite build assets..."
+    rm -rf /var/www/html/public/build
+    cp -rp /var/www/html-build/public/build /var/www/html/public/
+    echo "Build assets updated."
+fi
+
+echo "Public directory sync complete."
+# === КІНЕЦЬ СИНХРОНІЗАЦІЇ ===
 
 # === СПРОЩЕНЕ ОЧИЩЕННЯ ===
 echo "Force deleting ALL stale cache files..."
@@ -47,7 +59,9 @@ php -d opcache.enable=0 artisan db:seed --class=Database\\Seeders\\AdminSeeder -
 echo "Creating storage link..."
 php -d opcache.enable=0 artisan storage:link
 echo "Publishing Filament assets..."
-php -d opcache.enable=0 artisan filament:assets
+php -d opcache.enable=0 artisan filament:assets --force
+echo "Publishing all vendor assets..."
+php -d opcache.enable=0 artisan vendor:publish --tag=public --force
 
 # Final optimize
 echo "Caching configuration, routes, and views..."
