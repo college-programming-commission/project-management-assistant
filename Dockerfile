@@ -67,9 +67,14 @@ RUN echo "=== BUILDING ASSETS ===" \
     && echo "Timestamp: ${BUILD_TIMESTAMP:-$(date)}" \
     && npm ci \
     && npm run build \
-    && rm -rf node_modules \
     && echo "Build files created:" \
     && ls -la public/build/ 2>/dev/null || echo "Build directory may be empty" \
+    && echo "Ensuring manifest is in correct location..." \
+    && if [ -f public/build/.vite/manifest.json ]; then \
+        cp public/build/.vite/manifest.json public/build/manifest.json && \
+        echo "Manifest copied from .vite subdirectory to root build directory"; \
+    fi \
+    && rm -rf node_modules \
     && echo "======================="
 
 # =============================================================================

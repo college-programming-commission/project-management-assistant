@@ -41,8 +41,8 @@ php artisan db:seed --class=Database\\Seeders\\AdminSeeder --force --no-interact
 
 # Ensure frontend assets exist
 echo "Checking for Vite manifest..."
-# Check both possible locations for the manifest file
-if [ ! -f /var/www/html/public/build/manifest.json ] && [ ! -f /var/www/html/public/build/.vite/manifest.json ]; then
+# Build assets if manifest is missing
+if [ ! -f /var/www/html/public/build/manifest.json ]; then
     echo "Vite manifest not found, building frontend assets..."
     # Change to the application root directory
     cd /var/www/html
@@ -50,21 +50,22 @@ if [ ! -f /var/www/html/public/build/manifest.json ] && [ ! -f /var/www/html/pub
     npm ci --silent
     npm run build
     echo "Frontend assets built successfully"
-fi
-
-# Check if manifest exists in .vite subdirectory and copy it to expected location
-if [ -f /var/www/html/public/build/.vite/manifest.json ] && [ ! -f /var/www/html/public/build/manifest.json ]; then
-    echo "Found manifest in .vite subdirectory, copying to expected location..."
-    cp /var/www/html/public/build/.vite/manifest.json /var/www/html/public/build/manifest.json
-    echo "Vite manifest copied to expected location: public/build/manifest.json"
-elif [ -f /var/www/html/public/build/manifest.json ]; then
-    echo "Vite manifest already exists at expected location"
-else
-    echo "Vite manifest not found in either location"
-    ls -la /var/www/html/public/build/ || echo "Build directory does not exist"
-    if [ -d /var/www/html/public/build/.vite ]; then
-        ls -la /var/www/html/public/build/.vite/
+    
+    # Ensure manifest is in the expected location
+    if [ -f /var/www/html/public/build/.vite/manifest.json ]; then
+        cp /var/www/html/public/build/.vite/manifest.json /var/www/html/public/build/manifest.json
+        echo "Vite manifest copied from .vite subdirectory to expected location"
+    elif [ -f /var/www/html/public/build/manifest.json ]; then
+        echo "Vite manifest exists at expected location"
+    else
+        echo "ERROR: Vite manifest still not found after building assets!"
+        ls -la /var/www/html/public/build/ || echo "Build directory does not exist"
+        if [ -d /var/www/html/public/build/.vite ]; then
+            ls -la /var/www/html/public/build/.vite/
+        fi
     fi
+else
+    echo "Vite manifest found, skipping asset build"
 fi
 
 # Storage link & Assets
