@@ -57,15 +57,8 @@ return [
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'visibility' => 'public',
-            'throw' => true,
+            'throw' => false,
             'report' => false,
-            'options' => [
-                'http' => [
-                    'verify' => env('AWS_SSL_VERIFY', true),
-                    'connect_timeout' => 30,
-                    'timeout' => 60,
-                ],
-            ],
         ],
 
     ],
