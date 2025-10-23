@@ -43,10 +43,19 @@ php artisan db:seed --class=Database\\Seeders\\AdminSeeder --force --no-interact
 echo "Checking for Vite manifest..."
 if [ ! -f /var/www/html/public/build/manifest.json ]; then
     echo "Vite manifest not found, building frontend assets..."
+    # Change to the application root directory
+    cd /var/www/html
     # Install Node.js dependencies first
     npm ci --silent
     npm run build
     echo "Frontend assets built successfully"
+    # Verify manifest was created
+    if [ ! -f /var/www/html/public/build/manifest.json ]; then
+        echo "ERROR: Vite manifest still not found after building assets!"
+        ls -la /var/www/html/public/build/ || echo "Build directory does not exist"
+    else
+        echo "Vite manifest successfully created"
+    fi
 else
     echo "Vite manifest found, skipping asset build"
 fi
