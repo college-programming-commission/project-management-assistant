@@ -81,18 +81,40 @@ php -d opcache.enable=0 artisan optimize
 
 # === ДІАГНОСТИКА VITE BUILD ===
 echo "=== Vite Build Assets Check ==="
-if [ -d /var/www/html/public/build ]; then
-    echo "✓ build/ directory exists in volume"
-    echo "Files count: $(find /var/www/html/public/build -type f | wc -l)"
-    echo "Sample files:"
-    ls -lh /var/www/html/public/build/ | head -5
-    if [ -f /var/www/html/public/build/manifest.json ]; then
-        echo "✓ manifest.json found"
+echo "1. Checking backup in Docker image:"
+if [ -d /var/www/html-build ]; then
+    echo "   ✓ /var/www/html-build exists"
+    ls -lh /var/www/html-build/ | head -10
+    if [ -d /var/www/html-build/public ]; then
+        echo "   ✓ /var/www/html-build/public exists"
+        ls -lh /var/www/html-build/public/ | head -5
+        if [ -d /var/www/html-build/public/build ]; then
+            echo "   ✓ /var/www/html-build/public/build EXISTS"
+            echo "   Build files in image: $(find /var/www/html-build/public/build -type f | wc -l)"
+        else
+            echo "   ✗ /var/www/html-build/public/build NOT FOUND"
+        fi
     else
-        echo "✗ manifest.json MISSING"
+        echo "   ✗ /var/www/html-build/public NOT FOUND"
     fi
 else
-    echo "✗ ERROR: build/ directory NOT found in volume!"
+    echo "   ✗ /var/www/html-build NOT FOUND"
+fi
+
+echo ""
+echo "2. Checking current volume:"
+if [ -d /var/www/html/public/build ]; then
+    echo "   ✓ build/ directory exists in volume"
+    echo "   Files count: $(find /var/www/html/public/build -type f | wc -l)"
+    echo "   Sample files:"
+    ls -lh /var/www/html/public/build/ | head -5
+    if [ -f /var/www/html/public/build/manifest.json ]; then
+        echo "   ✓ manifest.json found"
+    else
+        echo "   ✗ manifest.json MISSING"
+    fi
+else
+    echo "   ✗ ERROR: build/ directory NOT found in volume!"
 fi
 echo "==============================="
 
