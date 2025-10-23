@@ -46,7 +46,24 @@ php -d opcache.enable=0 artisan view:clear
 php -d opcache.enable=0 artisan cache:clear
 php -d opcache.enable=0 artisan config:clear
 php -d opcache.enable=0 artisan route:clear
+
+# Clear PHP opcache if enabled
+if php -r "exit(function_exists('opcache_reset') ? 0 : 1);"; then
+    echo "Resetting PHP opcache..."
+    php -r "opcache_reset();"
+fi
+
 echo "All caches cleared."
+
+# Verify SPA configuration
+echo "=== SPA Configuration Check ==="
+if grep -q "->spa()" /var/www/html/app/Providers/Filament/AdminPanelProvider.php; then
+    echo "✓ SPA enabled in AdminPanelProvider"
+else
+    echo "✗ WARNING: spa() not found in AdminPanelProvider!"
+    grep "spa" /var/www/html/app/Providers/Filament/AdminPanelProvider.php || echo "No spa references found"
+fi
+echo "==============================="
 
 # Wait for DB & Redis
 echo "Waiting for database..."
