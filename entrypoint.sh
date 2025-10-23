@@ -43,8 +43,10 @@ php artisan db:seed --class=Database\\Seeders\\AdminSeeder --force --no-interact
 echo "Checking for Vite manifest..."
 if [ ! -f /var/www/html/public/build/manifest.json ]; then
     echo "Vite manifest not found, building frontend assets..."
-    npm ci
+    # Install Node.js dependencies first
+    npm ci --silent
     npm run build
+    echo "Frontend assets built successfully"
 else
     echo "Vite manifest found, skipping asset build"
 fi
