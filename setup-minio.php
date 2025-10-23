@@ -1,4 +1,13 @@
 <?php
+/**
+ * MinIO Bucket Setup Script
+ * 
+ * Автоматично налаштовує MinIO при старті контейнера:
+ * - Створює bucket (якщо не існує)
+ * - Встановлює публічну bucket policy для всіх файлів
+ * 
+ * Запускається з entrypoint.sh, можна відключити через MINIO_AUTO_SETUP=false
+ */
 
 require __DIR__.'/vendor/autoload.php';
 

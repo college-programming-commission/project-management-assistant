@@ -53,11 +53,11 @@ return [
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
             'region' => env('AWS_DEFAULT_REGION'),
             'bucket' => env('AWS_BUCKET'),
-            'url' => env('AWS_URL'),
-            'endpoint' => env('AWS_ENDPOINT'),
+            'url' => env('AWS_URL'),  // Публічний URL для браузера
+            'endpoint' => env('AWS_ENDPOINT'),  // Внутрішній URL для операцій
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-            'visibility' => 'public',
-            'throw' => false,
+            'visibility' => 'public',  // Всі файли публічні за замовчуванням
+            'throw' => false,  // Не ламати додаток на помилках S3
             'report' => false,
         ],
 
