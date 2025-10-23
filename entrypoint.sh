@@ -2,37 +2,30 @@
 set -e
 
 # === СИНХРОНІЗАЦІЯ PUBLIC ФАЙЛІВ З ОБРАЗУ ===
-echo "Syncing public directory from image..."
+echo "=========================================="
+echo "FORCE SYNC: Updating Vite build assets..."
+echo "=========================================="
 
-# Перевірка наявності backup директорії
-if [ -d /var/www/html-build/public ]; then
-    echo "✓ Backup directory exists: /var/www/html-build/public"
-    ls -la /var/www/html-build/public/ | head -10
-else
-    echo "✗ WARNING: Backup directory NOT found: /var/www/html-build/public"
-fi
-
-# Завжди копіюємо static files якщо їх немає
+# ЗАВЖДИ копіюємо static files якщо їх немає
 if [ ! -f /var/www/html/public/index.php ]; then
-    echo "Copying core public files..."
+    echo "→ Initializing public files from image..."
     cp -rp /var/www/html-build/public/* /var/www/html/public/ 2>/dev/null || true
-else
-    echo "✓ index.php already exists in volume"
 fi
 
-# ЗАВЖДИ оновлюємо build/ директорію (Vite assets)
-echo "Checking for Vite build directory..."
+# FORCE оновлення build/ директорії БЕЗ умов
+echo "→ Removing old build directory..."
+rm -rf /var/www/html/public/build 2>/dev/null || true
+
+echo "→ Copying fresh build from image..."
 if [ -d /var/www/html-build/public/build ]; then
-    echo "✓ Found build directory, syncing Vite assets..."
-    rm -rf /var/www/html/public/build
     cp -rp /var/www/html-build/public/build /var/www/html/public/
-    echo "✓ Vite build assets updated ($(ls -1 /var/www/html/public/build | wc -l) files)"
+    echo "✓ Build synced: $(find /var/www/html/public/build -type f 2>/dev/null | wc -l) files"
+    echo "→ Build timestamp: $(stat -c %y /var/www/html/public/build 2>/dev/null | cut -d. -f1)"
 else
-    echo "✗ WARNING: Build directory NOT found at /var/www/html-build/public/build"
-    echo "Available in html-build: $(ls -1 /var/www/html-build/ 2>/dev/null || echo 'nothing')"
+    echo "✗ ERROR: No build in image at /var/www/html-build/public/build"
 fi
 
-echo "Public directory sync complete."
+echo "=========================================="
 # === КІНЕЦЬ СИНХРОНІЗАЦІЇ ===
 
 # === СПРОЩЕНЕ ОЧИЩЕННЯ ===
