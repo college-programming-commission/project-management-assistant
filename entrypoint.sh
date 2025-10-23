@@ -59,6 +59,6 @@ if [ "${MINIO_AUTO_SETUP:-true}" = "true" ]; then
 fi
 
 echo "Entrypoint tasks complete. Starting container command..."
-
 # The 'exec "$@"' command is the final step, ensuring all preceding tasks are completed.
+# This will start the main container process (e.g., php-fpm) only after all the setup tasks above are done.
 exec "$@"
