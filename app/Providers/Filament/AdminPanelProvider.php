@@ -32,11 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->spa() // Enable SPA mode (Filament v4 syntax)
-            ->renderHook(
-                'panels::body.end',
-                fn () => view('vendor.filament-panels.components.scripts.spa-fallback')
-            )
+            ->spa()
             ->login()
             ->colors([
                 'primary' => $this->getPrimaryColor(),
@@ -90,15 +86,7 @@ class AdminPanelProvider extends PanelProvider
 
     protected function getPrimaryColor(): array
     {
-        // === ПОЧАТОК ВИПРАВЛЕННЯ ===
-        // Якщо додаток запущено в консолі (наприклад, 'artisan optimize' під час збірки),
-        // ми НЕ МОЖЕМО звертатися до Cache/DB. Повертаємо безпечне значення.
-        if (App::runningInConsole()) {
-            return Color::Red;
-        }
-        // === КІНЕЦЬ ВИПРАВЛЕННЯ ===
-
-        $colorName = Cache::get('admin_primary_color', 'red');
+        $colorName = Cache::get('admin_primary_color', 'emerald');
 
         $colors = [
             'slate' => Color::Slate,

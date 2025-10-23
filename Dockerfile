@@ -96,20 +96,6 @@ WORKDIR /var/www/html
 COPY --from=vendor /var/www/html/vendor/ /var/www/html/vendor/
 COPY . .
 
-# Create backup directory structure
-RUN mkdir -p /var/www/html-build/public
-
-# Copy fresh build from assets stage AFTER main copy to prevent overwrite
-COPY --from=assets /var/www/html/public/build/ /var/www/html/public/build/
-
-# Backup entire public/ including fresh build
-RUN cp -rp /var/www/html/public/* /var/www/html-build/public/ && \
-    echo "=== BACKUP VERIFICATION ===" && \
-    echo "Backup created at: $(date)" && \
-    echo "Build files in backup:" && \
-    ls -lh /var/www/html-build/public/build/ && \
-    echo "=========================="
-
 # Create directories for volumes & cache
 RUN mkdir -p /var/www/html/storage/app/public \
              /var/www/html/storage/framework/sessions \
@@ -123,7 +109,6 @@ RUN chown -R www-data:www-data \
         /var/www/html/storage \
         /var/www/html/bootstrap/cache \
         /var/www/html/public \
-        /var/www/html-build \
     && chmod -R 775 \
         /var/www/html/storage \
         /var/www/html/bootstrap/cache
