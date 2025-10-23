@@ -87,6 +87,8 @@ php -d opcache.enable=0 artisan db:seed --class=Database\\Seeders\\AdminSeeder -
 # Storage link & Assets
 echo "Creating storage link..."
 php -d opcache.enable=0 artisan storage:link || true
+echo "Publishing Livewire assets..."
+php -d opcache.enable=0 artisan livewire:publish --assets --force || true
 echo "Publishing Filament assets..."
 php -d opcache.enable=0 artisan filament:assets
 

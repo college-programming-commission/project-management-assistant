@@ -80,3 +80,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+// SPA navigation fallback
+import './spa-fallback.js';
