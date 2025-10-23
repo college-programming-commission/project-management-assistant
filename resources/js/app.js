@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.documentElement.classList.remove('dark')
     }
 
-    // Застосовуємо збережену кольорову тему
+    // Застосовуємо збережену кольорову тему 2
     const savedColorTheme = localStorage.getItem('colorTheme') || 'ocean'
     window.setColorTheme(savedColorTheme)
 })
