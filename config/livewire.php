@@ -64,7 +64,7 @@ return [
     */
 
     'temporary_file_upload' => [
-        'disk' => 'livewire',
+        'disk' => null,  // Використовує FILESYSTEM_DISK (s3)
         'rules' => null,
         'directory' => null,
         'middleware' => null,
