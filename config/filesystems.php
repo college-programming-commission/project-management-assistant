@@ -59,6 +59,13 @@ return [
             'visibility' => 'public',
             'throw' => true,
             'report' => false,
+            'options' => [
+                'http' => [
+                    'verify' => env('AWS_SSL_VERIFY', true),
+                    'connect_timeout' => 30,
+                    'timeout' => 60,
+                ],
+            ],
         ],
 
     ],
