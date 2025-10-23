@@ -92,6 +92,11 @@ RUN mkdir -p /var/www/html/storage/app/public \
              /var/www/html/storage/framework/cache/data \
              /var/www/html/storage/logs \
              /var/www/html/bootstrap/cache
+             
+# Create log file and set permissions
+RUN touch /var/www/html/storage/logs/laravel.log \
+   && chown -R www-data:www-data /var/www/html/storage \
+   && chmod -R 775 /var/www/html/storage
 
 # Set proper permissions
 RUN chown -R www-data:www-data \

@@ -6,6 +6,10 @@ echo "Setting up storage permissions..."
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
 
+# Ensure log file exists and is writable
+touch /var/www/html/storage/logs/laravel.log
+chmod 664 /var/www/html/storage/logs/laravel.log
+
 # Clear ALL caches
 echo "Clearing application cache (Artisan)..."
 php artisan optimize:clear
