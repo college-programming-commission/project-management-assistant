@@ -1,9 +1,19 @@
 // Fallback SPA navigation if Filament doesn't render wire:navigate
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof Livewire === 'undefined' || typeof Livewire.navigate === 'undefined') {
-        console.warn('Livewire navigate not available');
+console.log('📦 SPA fallback script loaded');
+
+function initSpaFallback() {
+    if (typeof window.Livewire === 'undefined') {
+        console.warn('⚠️ Livewire not found, retrying in 100ms...');
+        setTimeout(initSpaFallback, 100);
         return;
     }
+
+    if (typeof window.Livewire.navigate !== 'function') {
+        console.warn('⚠️ Livewire.navigate not available');
+        return;
+    }
+
+    console.log('✓ Livewire found, initializing SPA fallback...');
 
     // Add click handler to all internal links
     document.addEventListener('click', function(e) {
@@ -13,26 +23,43 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const href = link.getAttribute('href');
         
+        // Skip if no href
+        if (!href) return;
+        
+        // Skip external links (not same origin)
+        try {
+            const url = new URL(href, window.location.origin);
+            if (url.origin !== window.location.origin) return;
+        } catch (err) {
+            return;
+        }
+        
         // Skip if:
-        // - No href
-        // - External link
-        // - Already has wire:navigate
+        // - Already has wire:navigate (Filament rendered it correctly)
         // - Download link
-        // - Hash link
+        // - Hash link only
         // - Has target="_blank"
-        if (!href || 
-            href.startsWith('http') && !href.startsWith(window.location.origin) ||
-            link.hasAttribute('wire:navigate') ||
+        if (link.hasAttribute('wire:navigate') ||
             link.hasAttribute('download') ||
-            href.startsWith('#') ||
+            href === '#' ||
             link.target === '_blank') {
             return;
         }
         
-        // Navigate using Livewire
+        // Navigate using Livewire SPA
+        console.log('🚀 SPA Navigate to:', href);
         e.preventDefault();
-        Livewire.navigate(href);
-    }, true);
+        e.stopPropagation();
+        window.Livewire.navigate(href);
+    }, true); // Use capture phase
     
-    console.log('✓ SPA fallback navigation enabled');
-});
+    console.log('✅ SPA fallback navigation enabled');
+}
+
+// Try to init when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSpaFallback);
+} else {
+    // DOM already loaded
+    initSpaFallback();
+}
