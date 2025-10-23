@@ -48,15 +48,15 @@ php artisan livewire:publish --assets --force || true
 echo "Publishing Filament assets..."
 php artisan filament:assets
 
-# Final optimize
-echo "Caching configuration, routes, and views..."
-php artisan optimize
-
 # Setup MinIO (auto-configure public bucket policy)
 if [ "${MINIO_AUTO_SETUP:-true}" = "true" ]; then
     echo "Setting up MinIO buckets..."
     php setup-minio.php || echo "Warning: MinIO setup failed, continuing anyway..."
 fi
+
+# Final optimize, after all other steps are complete
+echo "Caching configuration, routes, and views..."
+php artisan optimize
 
 echo "Entrypoint tasks complete. Starting container command..."
 # The 'exec "$@"' command is the final step, ensuring all preceding tasks are completed.
