@@ -79,6 +79,23 @@ php -d opcache.enable=0 artisan filament:assets
 echo "Caching configuration, routes, and views..."
 php -d opcache.enable=0 artisan optimize
 
+# === ДІАГНОСТИКА VITE BUILD ===
+echo "=== Vite Build Assets Check ==="
+if [ -d /var/www/html/public/build ]; then
+    echo "✓ build/ directory exists in volume"
+    echo "Files count: $(find /var/www/html/public/build -type f | wc -l)"
+    echo "Sample files:"
+    ls -lh /var/www/html/public/build/ | head -5
+    if [ -f /var/www/html/public/build/manifest.json ]; then
+        echo "✓ manifest.json found"
+    else
+        echo "✗ manifest.json MISSING"
+    fi
+else
+    echo "✗ ERROR: build/ directory NOT found in volume!"
+fi
+echo "==============================="
+
 # Setup MinIO (auto-configure public bucket policy)
 if [ "${MINIO_AUTO_SETUP:-true}" = "true" ]; then
     echo "Setting up MinIO buckets..."
