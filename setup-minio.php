@@ -21,7 +21,18 @@ try {
 
     // Налаштувати публічну bucket policy
     echo "Setting public bucket policy...\n";
-    $s3Client = $disk->getAdapter()->getClient();
+    
+    $s3Client = new \Aws\S3\S3Client([
+        'version' => 'latest',
+        'region' => config('filesystems.disks.s3.region'),
+        'endpoint' => config('filesystems.disks.s3.endpoint'),
+        'use_path_style_endpoint' => config('filesystems.disks.s3.use_path_style_endpoint'),
+        'credentials' => [
+            'key' => config('filesystems.disks.s3.key'),
+            'secret' => config('filesystems.disks.s3.secret'),
+        ],
+    ]);
+    
     $bucket = config('filesystems.disks.s3.bucket');
     
     $policy = [
