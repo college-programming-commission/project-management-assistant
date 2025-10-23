@@ -54,11 +54,16 @@ return [
             'region' => env('AWS_DEFAULT_REGION'),
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),  // Публічний URL для браузера
-            'endpoint' => env('AWS_ENDPOINT'),  // Внутрішній URL для операцій
+            'endpoint' => env('AWS_ENDPOINT'),  // Публічний HTTPS URL для pre-signed URLs
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'visibility' => 'public',  // Всі файли публічні за замовчуванням
             'throw' => false,  // Не ламати додаток на помилках S3
             'report' => false,
+            'options' => [
+                'http' => [
+                    'verify' => false,  // Відключити SSL verify для cloudflared
+                ],
+            ],
         ],
 
     ],

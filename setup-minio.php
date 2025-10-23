@@ -22,10 +22,13 @@ try {
     // Налаштувати публічну bucket policy спочатку
     echo "Setting public bucket policy...\n";
     
+    // Для setup використовуємо внутрішній endpoint
+    $internalEndpoint = str_replace('https://s3-kafedra.phfk.college', 'http://minio:9000', config('filesystems.disks.s3.endpoint'));
+    
     $s3Client = new \Aws\S3\S3Client([
         'version' => 'latest',
         'region' => config('filesystems.disks.s3.region'),
-        'endpoint' => config('filesystems.disks.s3.endpoint'),
+        'endpoint' => $internalEndpoint,
         'use_path_style_endpoint' => config('filesystems.disks.s3.use_path_style_endpoint'),
         'credentials' => [
             'key' => config('filesystems.disks.s3.key'),
