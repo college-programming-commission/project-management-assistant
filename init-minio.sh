@@ -2,15 +2,22 @@
 set -e
 
 echo "Waiting for MinIO to be ready..."
-until curl -sf http://minio:9000/minio/health/live > /dev/null 2>&1; do
-    echo "MinIO is not ready yet, waiting..."
-    sleep 2
+MAX_ATTEMPTS=30
+ATTEMPT=0
+
+# Wait and configure MinIO client
+until mc alias set myminio http://minio:9000 "${MINIO_ROOT_USER}" "${MINIO_ROOT_PASSWORD}" > /dev/null 2>&1 || [ $ATTEMPT -eq $MAX_ATTEMPTS ]; do
+    ATTEMPT=$((ATTEMPT + 1))
+    echo "MinIO is not ready yet, waiting... (attempt $ATTEMPT/$MAX_ATTEMPTS)"
+    sleep 3
 done
 
-echo "MinIO is ready. Configuring mc client..."
+if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+    echo "ERROR: Could not connect to MinIO after $MAX_ATTEMPTS attempts!"
+    exit 1
+fi
 
-# Configure MinIO client
-mc alias set myminio http://minio:9000 "${MINIO_ROOT_USER}" "${MINIO_ROOT_PASSWORD}"
+echo "MinIO is ready! Configuring CORS..."
 
 echo "Creating bucket if it doesn't exist..."
 mc mb myminio/${AWS_BUCKET} --ignore-existing

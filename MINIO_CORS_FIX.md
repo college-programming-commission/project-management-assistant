@@ -117,11 +117,15 @@ minio-init:
 
 ### init-minio.sh
 Автоматично налаштовує:
-- Створення bucket `local`
-- CORS policy для всіх origins
-- Дозволені методи: GET, HEAD, PUT, POST, DELETE
-- Дозволені headers: всі (*)
+- Чекає доступності MinIO через `mc alias set` (до 30 спроб по 3 сек)
+- Створення bucket `local` (якщо не існує)
+- CORS policy для всіх origins: `*`
+- Дозволені методи: `GET`, `HEAD`, `PUT`, `POST`, `DELETE`
+- Дозволені headers: всі `*`
+- Expose headers: `ETag`, `x-amz-request-id`, `x-amz-id-2`
 - Public read доступ до bucket
+
+**Важливо:** Скрипт використовує MinIO Client (`mc`) для перевірки доступності, що надійніше ніж curl/wget.
 
 ## Архітектура URL і Потоки даних
 
