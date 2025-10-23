@@ -170,10 +170,7 @@ services:
         environment:
             MINIO_ROOT_USER: ${MINIO_ROOT_USER}
             MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-            MINIO_SERVER_CORS_ALLOW_ORIGIN: 'https://kafedra.phfk.college' # Your website origin
-            MINIO_SERVER_CORS_ALLOW_METHODS: 'PUT,GET,HEAD,OPTIONS' # Allowed methods
-            MINIO_SERVER_CORS_ALLOW_HEADERS: '*' # Allow all headers (simplest)
-            MINIO_SERVER_CORS_EXPOSE_HEADERS: 'ETag'
+            MINIO_API_CORS_ALLOW_ORIGIN: 'https://kafedra.phfk.college'
         volumes:
             - minio-data:/data
         ports:
