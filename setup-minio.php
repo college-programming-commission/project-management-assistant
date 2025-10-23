@@ -10,16 +10,7 @@ echo "Setting up MinIO buckets...\n";
 try {
     $disk = \Illuminate\Support\Facades\Storage::disk('s3');
     
-    // Тест запису
-    $disk->put('test.txt', 'MinIO is working! ' . date('Y-m-d H:i:s'));
-    echo "✓ S3 bucket is accessible\n";
-
-    // Livewire диск
-    $livewireDisk = \Illuminate\Support\Facades\Storage::disk('livewire-s3');
-    $livewireDisk->put('test.txt', 'Livewire MinIO is working! ' . date('Y-m-d H:i:s'));
-    echo "✓ Livewire S3 disk is accessible\n";
-
-    // Налаштувати публічну bucket policy
+    // Налаштувати публічну bucket policy спочатку
     echo "Setting public bucket policy...\n";
     
     $s3Client = new \Aws\S3\S3Client([
@@ -53,7 +44,13 @@ try {
     ]);
     
     echo "✓ Public bucket policy configured\n";
+    
+    // Тест запису
+    $disk->put('test.txt', 'MinIO is working! ' . date('Y-m-d H:i:s'));
+    echo "✓ S3 bucket is accessible\n";
+    
     echo "✓ MinIO setup completed successfully!\n";
+    echo "All files are now publicly accessible at: " . config('filesystems.disks.s3.url') . "\n";
     exit(0);
 
 } catch (\Exception $e) {
