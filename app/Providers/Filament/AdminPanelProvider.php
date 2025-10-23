@@ -32,7 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->spa(true, true) // Enable SPA mode with prefetching
+            ->spa() // Enable SPA mode (Filament v4 syntax)
             ->login()
             ->colors([
                 'primary' => $this->getPrimaryColor(),
