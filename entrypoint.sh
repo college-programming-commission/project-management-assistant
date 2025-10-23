@@ -35,11 +35,6 @@ php artisan db:seed --class=Database\\Seeders\\RolesAndPermissionsSeeder --force
 echo "Ensuring admin user exists..."
 php artisan db:seed --class=Database\\Seeders\\AdminSeeder --force --no-interaction
 
-# Frontend Assets Build
-echo "Building frontend assets..."
-npm install
-npm run build
-
 # Storage link & Assets
 echo "Creating storage link..."
 php artisan storage:link || true
