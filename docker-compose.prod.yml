@@ -6,6 +6,7 @@ services:
             args:
                 - NODE_ENV=production
                 - INSTALL_DEV=false
+                - BUILD_TIMESTAMP=${BUILD_TIMESTAMP:-$(date +%s)}
             labels:
                 - 'build.timestamp=${BUILD_TIMESTAMP:-unknown}'
         image: project-management-assistant-app:latest
