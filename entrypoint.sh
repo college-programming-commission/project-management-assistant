@@ -25,27 +25,27 @@ while ! nc -z redis 6379; do sleep 0.1; done
 echo "Redis is ready."
 
 # Key generation
-if [ -z "$APP_KEY" ]; then php -d opcache.enable=0 artisan key:generate --force; fi
+if [ -z "$APP_KEY" ]; then php artisan key:generate --force; fi
 
 # Migrations & Seeders
 echo "Running database migrations..."
-php -d opcache.enable=0 artisan migrate --force --no-interaction
+php artisan migrate --force --no-interaction
 echo "Checking roles and permissions..."
-php -d opcache.enable=0 artisan db:seed --class=Database\\Seeders\\RolesAndPermissionsSeeder --force --no-interaction || true
+php artisan db:seed --class=Database\\Seeders\\RolesAndPermissionsSeeder --force --no-interaction || true
 echo "Ensuring admin user exists..."
-php -d opcache.enable=0 artisan db:seed --class=Database\\Seeders\\AdminSeeder --force --no-interaction
+php artisan db:seed --class=Database\\Seeders\\AdminSeeder --force --no-interaction
 
 # Storage link & Assets
 echo "Creating storage link..."
-php -d opcache.enable=0 artisan storage:link || true
+php artisan storage:link || true
 echo "Publishing Livewire assets..."
-php -d opcache.enable=0 artisan livewire:publish --assets --force || true
+php artisan livewire:publish --assets --force || true
 echo "Publishing Filament assets..."
-php -d opcache.enable=0 artisan filament:assets
+php artisan filament:assets
 
 # Final optimize
 echo "Caching configuration, routes, and views..."
-php -d opcache.enable=0 artisan optimize
+php artisan optimize
 
 # Setup MinIO (auto-configure public bucket policy)
 if [ "${MINIO_AUTO_SETUP:-true}" = "true" ]; then
