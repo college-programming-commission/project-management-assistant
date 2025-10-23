@@ -50,23 +50,21 @@ if [ ! -f /var/www/html/public/build/manifest.json ] && [ ! -f /var/www/html/pub
     npm ci --silent
     npm run build
     echo "Frontend assets built successfully"
-    # Verify manifest was created in either location
-    if [ -f /var/www/html/public/build/.vite/manifest.json ]; then
-        echo "Vite manifest successfully created at public/build/.vite/manifest.json"
-        # Copy manifest to expected location to ensure Laravel can find it
-        cp /var/www/html/public/build/.vite/manifest.json /var/www/html/public/build/manifest.json
-        echo "Vite manifest copied to expected location: public/build/manifest.json"
-    elif [ -f /var/www/html/public/build/manifest.json ]; then
-        echo "Vite manifest successfully created at public/build/manifest.json"
-    else
-        echo "ERROR: Vite manifest still not found after building assets!"
-        ls -la /var/www/html/public/build/ || echo "Build directory does not exist"
-        if [ -d /var/www/html/public/build/.vite ]; then
-            ls -la /var/www/html/public/build/.vite/
-        fi
-    fi
+fi
+
+# Check if manifest exists in .vite subdirectory and copy it to expected location
+if [ -f /var/www/html/public/build/.vite/manifest.json ] && [ ! -f /var/www/html/public/build/manifest.json ]; then
+    echo "Found manifest in .vite subdirectory, copying to expected location..."
+    cp /var/www/html/public/build/.vite/manifest.json /var/www/html/public/build/manifest.json
+    echo "Vite manifest copied to expected location: public/build/manifest.json"
+elif [ -f /var/www/html/public/build/manifest.json ]; then
+    echo "Vite manifest already exists at expected location"
 else
-    echo "Vite manifest found, skipping asset build"
+    echo "Vite manifest not found in either location"
+    ls -la /var/www/html/public/build/ || echo "Build directory does not exist"
+    if [ -d /var/www/html/public/build/.vite ]; then
+        ls -la /var/www/html/public/build/.vite/
+    fi
 fi
 
 # Storage link & Assets
