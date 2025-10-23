@@ -39,6 +39,16 @@ php artisan db:seed --class=Database\\Seeders\\RolesAndPermissionsSeeder --force
 echo "Ensuring admin user exists..."
 php artisan db:seed --class=Database\\Seeders\\AdminSeeder --force --no-interaction
 
+# Ensure frontend assets exist
+echo "Checking for Vite manifest..."
+if [ ! -f /var/www/html/public/build/manifest.json ]; then
+    echo "Vite manifest not found, building frontend assets..."
+    npm ci
+    npm run build
+else
+    echo "Vite manifest found, skipping asset build"
+fi
+
 # Storage link & Assets
 echo "Creating storage link..."
 php artisan storage:link || true

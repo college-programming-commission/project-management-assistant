@@ -69,7 +69,8 @@ RUN echo "=== BUILDING ASSETS ===" \
     && npm run build \
     && rm -rf node_modules \
     && echo "Build files created:" \
-    && ls -lh public/build/ \
+    && ls -la public/build/ \
+    && test -f public/build/manifest.json && echo "✓ Vite manifest.json created successfully" || (echo "✗ ERROR: Vite manifest.json not found!" && exit 1) \
     && echo "======================="
 
 # =============================================================================
@@ -95,8 +96,8 @@ RUN mkdir -p /var/www/html/storage/app/public \
              
 # Create log file and set permissions
 RUN touch /var/www/html/storage/logs/laravel.log \
-   && chown -R www-data:www-data /var/www/html/storage \
-   && chmod -R 775 /var/www/html/storage
+   && chown -R www-data:www-data /var/www/html/storage /var/www/html/public \
+   && chmod -R 775 /var/www/html/storage /var/www/html/public
 
 # Set proper permissions
 RUN chown -R www-data:www-data \
