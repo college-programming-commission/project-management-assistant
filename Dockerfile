@@ -96,6 +96,9 @@ WORKDIR /var/www/html
 COPY --from=vendor /var/www/html/vendor/ /var/www/html/vendor/
 COPY . .
 
+# Copy fresh build from assets stage AFTER main copy to prevent overwrite
+COPY --from=assets /var/www/html/public/build/ /var/www/html/public/build/
+
 # Create directories for volumes & cache
 RUN mkdir -p /var/www/html/storage/app/public \
              /var/www/html/storage/framework/sessions \
