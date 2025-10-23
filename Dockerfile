@@ -72,18 +72,18 @@ COPY package*.json ./
 FROM base AS assets
 WORKDIR /var/www/html
 
+# Invalidate cache on date change - this forces fresh build
+ARG CACHEBUST=1
+RUN echo "Cache bust: ${CACHEBUST}"
+
 COPY --from=vendor /var/www/html/vendor/ /var/www/html/vendor/
 COPY package*.json ./
-
-# Copy source BEFORE .git to detect changes
 COPY . .
 
-# Bust cache on git changes - force rebuild when code changes
-RUN --mount=type=cache,target=/root/.npm \
-    if [ -d .git ]; then echo "Git commit: $(git rev-parse --short HEAD 2>/dev/null || echo 'unknown')"; fi \
-    && npm ci \
+RUN npm ci \
     && npm run build \
-    && rm -rf node_modules
+    && rm -rf node_modules \
+    && echo "Build completed at: $(date)"
 
 # =============================================================================
 # Stage 4: Final application image

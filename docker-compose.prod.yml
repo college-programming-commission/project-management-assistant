@@ -6,6 +6,7 @@ services:
             args:
                 - NODE_ENV=production
                 - INSTALL_DEV=false
+                - CACHEBUST=${CACHEBUST:-1}
         image: project-management-assistant-app:latest
         container_name: project-management-app
         restart: always
