@@ -52,36 +52,13 @@ RUN if [ "$INSTALL_DEV" = "true" ]; then \
 COPY package*.json ./
 
 # =============================================================================
-# Stage 3: Build frontend assets
-# =============================================================================
-FROM base AS assets
-ARG BUILD_TIMESTAMP
-WORKDIR /var/www/html
-
-COPY --from=vendor /var/www/html/vendor/ /var/www/html/vendor/
-COPY package*.json ./
-COPY . .
-
-# Force fresh build - invalidate cache every time
-RUN echo "=== BUILDING ASSETS ===" \
-    && echo "Timestamp: ${BUILD_TIMESTAMP:-$(date)}" \
-    && npm ci \
-    && npm run build \
-    && rm -rf node_modules \
-    && echo "Build files created:" \
-    && ls -lh public/build/ \
-    && echo "======================="
-
-# =============================================================================
-# Stage 4: Final application image
+# Stage 3: Final application image
 # =============================================================================
 FROM base AS app
 WORKDIR /var/www/html
 
 # Copy vendor dependencies
 COPY --from=vendor /var/www/html/vendor/ /var/www/html/vendor/
-# Copy built assets
-COPY --from=assets /var/www/html/public/build/ /var/www/html/public/build/
 # Copy the rest of the application code
 COPY . .
 
