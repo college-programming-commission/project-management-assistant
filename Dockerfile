@@ -67,23 +67,24 @@ RUN if [ "$INSTALL_DEV" = "true" ]; then \
 COPY package*.json ./
 
 # =============================================================================
-# Stage 3: Build frontend assets
+# Stage 3: Build frontend assets  
 # =============================================================================
 FROM base AS assets
 WORKDIR /var/www/html
-
-# Invalidate cache on date change - this forces fresh build
-ARG CACHEBUST=1
-RUN echo "Cache bust: ${CACHEBUST}"
 
 COPY --from=vendor /var/www/html/vendor/ /var/www/html/vendor/
 COPY package*.json ./
 COPY . .
 
-RUN npm ci \
+# Force fresh build - invalidate cache every time
+RUN echo "=== BUILDING ASSETS ===" \
+    && echo "Timestamp: $(date)" \
+    && npm ci \
     && npm run build \
     && rm -rf node_modules \
-    && echo "Build completed at: $(date)"
+    && echo "Build files created:" \
+    && ls -lh public/build/ \
+    && echo "=======================" 
 
 # =============================================================================
 # Stage 4: Final application image
@@ -103,8 +104,11 @@ COPY --from=assets /var/www/html/public/build/ /var/www/html/public/build/
 
 # Backup entire public/ including fresh build
 RUN cp -rp /var/www/html/public/* /var/www/html-build/public/ && \
+    echo "=== BACKUP VERIFICATION ===" && \
     echo "Backup created at: $(date)" && \
-    ls -lh /var/www/html-build/public/build/ | head -5
+    echo "Build files in backup:" && \
+    ls -lh /var/www/html-build/public/build/ && \
+    echo "=========================="
 
 # Create directories for volumes & cache
 RUN mkdir -p /var/www/html/storage/app/public \

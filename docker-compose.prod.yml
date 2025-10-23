@@ -6,7 +6,8 @@ services:
             args:
                 - NODE_ENV=production
                 - INSTALL_DEV=false
-                - CACHEBUST=${CACHEBUST:-1}
+            labels:
+                - "build.timestamp=${BUILD_TIMESTAMP:-unknown}"
         image: project-management-assistant-app:latest
         container_name: project-management-app
         restart: always
