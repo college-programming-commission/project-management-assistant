@@ -19,11 +19,29 @@ try {
     $livewireDisk->put('test.txt', 'Livewire MinIO is working! ' . date('Y-m-d H:i:s'));
     echo "✓ Livewire S3 disk is accessible\n";
 
-    // Налаштувати публічний доступ для аватарок
-    echo "Setting public access for avatars...\n";
-    $disk->setVisibility('avatars', 'public');
-    echo "✓ Public access configured\n";
-
+    // Налаштувати публічну bucket policy
+    echo "Setting public bucket policy...\n";
+    $s3Client = $disk->getAdapter()->getClient();
+    $bucket = config('filesystems.disks.s3.bucket');
+    
+    $policy = [
+        'Version' => '2012-10-17',
+        'Statement' => [
+            [
+                'Effect' => 'Allow',
+                'Principal' => ['AWS' => ['*']],
+                'Action' => ['s3:GetObject'],
+                'Resource' => ["arn:aws:s3:::{$bucket}/*"]
+            ]
+        ]
+    ];
+    
+    $s3Client->putBucketPolicy([
+        'Bucket' => $bucket,
+        'Policy' => json_encode($policy)
+    ]);
+    
+    echo "✓ Public bucket policy configured\n";
     echo "✓ MinIO setup completed successfully!\n";
     exit(0);
 
