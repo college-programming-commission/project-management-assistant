@@ -16,7 +16,7 @@ services:
         env_file:
             - .env
         volumes:
-            - app-public:/var/www/html/public
+            - app-public-v2:/var/www/html/public
             - app-storage:/var/www/html/storage
         networks:
             project-management-network:
@@ -41,7 +41,7 @@ services:
             - '${APP_PORT:-8080}:80'
         volumes:
             - ./config/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-            - app-public:/var/www/html/public:ro
+            - app-public-v2:/var/www/html/public:ro
         networks:
             - project-management-network
         depends_on:
@@ -172,8 +172,8 @@ volumes:
         name: project-management-db-data
     redis-data:
         name: project-management-redis-data
-    app-public:
-        name: project-management-public
+    app-public-v2:
+        name: project-management-public-v2
     app-storage:
         name: project-management-storage
     minio-data:
