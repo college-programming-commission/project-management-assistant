@@ -74,11 +74,15 @@ WORKDIR /var/www/html
 
 COPY --from=vendor /var/www/html/vendor/ /var/www/html/vendor/
 COPY package*.json ./
+
+# Copy source BEFORE .git to detect changes
 COPY . .
 
-RUN npm ci \
+# Bust cache on git changes - force rebuild when code changes
+RUN --mount=type=cache,target=/root/.npm \
+    if [ -d .git ]; then echo "Git commit: $(git rev-parse --short HEAD 2>/dev/null || echo 'unknown')"; fi \
+    && npm ci \
     && npm run build \
-    && npm cache clean --force \
     && rm -rf node_modules
 
 # =============================================================================
