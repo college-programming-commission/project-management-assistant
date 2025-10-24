@@ -32,13 +32,14 @@ echo "Redis is ready."
 if [ -z "$APP_KEY" ]; then php artisan key:generate --force; fi
 
 # Migrations & Seeders
-echo "Running database migrations with fresh refresh..."
-php artisan migrate:fresh --force --no-interaction
-
 if [ "${APP_ENV}" = "production" ]; then
+    echo "Running database migrations with refresh (rollback + migrate)..."
+    php artisan migrate:refresh --force --no-interaction
     echo "Seeding essential data for production..."
     php artisan db:seed --class=Database\\Seeders\\ProductionSeeder --force --no-interaction
 else
+    echo "Running database migrations with fresh (drop all tables)..."
+    php artisan migrate:fresh --force --no-interaction
     echo "Seeding all data for development..."
     php artisan db:seed --force --no-interaction
 fi
