@@ -24,8 +24,8 @@ class UserSeeder extends Seeder
                     'course_number' => null,
                 ]
             );
-            
-            if (!$admin->hasRole('admin')) {
+
+            if (! $admin->hasRole('admin')) {
                 $admin->assignRole('admin');
             }
         }
@@ -55,7 +55,7 @@ class UserSeeder extends Seeder
         // Створення викладачів
         for ($i = 0; $i < count($teacherNames); $i++) {
             $teacher = User::factory()->create([
-                'email' => 'teacher' . ($i + 1) . '@uzhnu.edu.ua',
+                'email' => 'teacher'.($i + 1).'@uzhnu.edu.ua',
                 'first_name' => $teacherNames[$i]['first_name'],
                 'last_name' => $teacherNames[$i]['last_name'],
                 'middle_name' => $teacherNames[$i]['middle_name'],
@@ -68,7 +68,7 @@ class UserSeeder extends Seeder
         // Створення студентів
         for ($i = 0; $i < count($studentNames); $i++) {
             $student = User::factory()->create([
-                'email' => 'student' . ($i + 1) . '@student.uzhnu.edu.ua',
+                'email' => 'student'.($i + 1).'@student.uzhnu.edu.ua',
                 'first_name' => $studentNames[$i]['first_name'],
                 'last_name' => $studentNames[$i]['last_name'],
                 'middle_name' => $studentNames[$i]['middle_name'],

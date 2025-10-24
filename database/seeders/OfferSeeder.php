@@ -23,8 +23,8 @@ class OfferSeeder extends Seeder
         $users = User::role('student')->get();
 
         Offer::factory()->count(30)->create([
-            'project_id' => fn() => $projects->random()->id,
-            'student_id' => fn() => $users->random()->id,
+            'project_id' => fn () => $projects->random()->id,
+            'student_id' => fn () => $users->random()->id,
         ]);
     }
 }

@@ -51,10 +51,10 @@ class MessageSeeder extends Seeder
             ],
         ];
 
-foreach ($messages as $messageData) {
+        foreach ($messages as $messageData) {
             Message::factory()->create([
-                'project_id' => fn() => $projects->random()->id,
-                'sender_id' => fn($attributes) => collect([
+                'project_id' => fn () => $projects->random()->id,
+                'sender_id' => fn ($attributes) => collect([
                     $supervisors->firstWhere('id', $projects->firstWhere('id', $attributes['project_id'])->supervisor_id)->user_id,
                     $projects->firstWhere('id', $attributes['project_id'])->assigned_to,
                 ])->random(),

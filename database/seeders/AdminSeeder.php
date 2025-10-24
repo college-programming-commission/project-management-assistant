@@ -32,7 +32,7 @@ class AdminSeeder extends Seeder
             ]
         );
 
-        if (!$admin->hasRole('admin')) {
+        if (! $admin->hasRole('admin')) {
             $admin->assignRole('admin');
             $this->command->info("✅ Admin role assigned to {$adminEmail}");
         }
