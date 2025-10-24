@@ -16,8 +16,8 @@ class SupervisorFactory extends Factory
         return [
             'event_id' => Event::factory(),
             'user_id' => User::factory(),
-            'note' => $this->faker->optional()->sentence(),
-            'slot_count' => $this->faker->optional()->numberBetween(5, 20),
+            'note' => fake()->optional()->sentence(),
+            'slot_count' => fake()->optional()->numberBetween(5, 20),
         ];
     }
 }

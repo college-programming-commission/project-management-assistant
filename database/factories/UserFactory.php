@@ -16,25 +16,25 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'email' => $this->faker->unique()->safeEmail(),
+            'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
             'remember_token' => Str::random(10),
-            'profile_photo_path' => $this->faker->optional()->randomElement([
+            'profile_photo_path' => fake()->optional()->randomElement([
                 'https://placehold.co/400x400/94A3B8/FFFFFF?text=User',
                 'https://placehold.co/400x400/64748B/FFFFFF?text=Avatar',
             ]),
-            'first_name' => $this->faker->firstName(),
-            'last_name' => $this->faker->lastName(),
-            'middle_name' => $this->faker->boolean(70) ? $this->faker->firstName() : null,
-            'description' => $this->faker->boolean(80) ? $this->faker->text(200) : null,
-            'avatar' => $this->faker->optional()->randomElement([
+            'first_name' => fake()->firstName(),
+            'last_name' => fake()->lastName(),
+            'middle_name' => fake()->boolean(70) ? fake()->firstName() : null,
+            'description' => fake()->boolean(80) ? fake()->text(200) : null,
+            'avatar' => fake()->optional()->randomElement([
                 'https://placehold.co/400x400/94A3B8/FFFFFF?text=User',
                 'https://placehold.co/400x400/64748B/FFFFFF?text=Avatar',
             ]),
-            'course_number' => $this->faker->boolean(80) ? $this->faker->numberBetween(2, 4) : null,
+            'course_number' => fake()->boolean(80) ? fake()->numberBetween(2, 4) : null,
         ];
     }
 

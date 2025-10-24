@@ -15,16 +15,16 @@ class ProjectFactory extends Factory
     
     public function definition(): array
     {
-        $name = $this->faker->unique()->sentence(3);
+        $name = fake()->unique()->sentence(3);
 
         return [
             'event_id' => Event::factory(),
             'supervisor_id' => Supervisor::factory(),
-            'assigned_to' => $this->faker->optional()->randomElement([User::factory(), null]),
+            'assigned_to' => fake()->optional()->randomElement([User::factory(), null]),
             'slug' => Str::slug($name),
             'name' => $name,
-            'appendix' => $this->faker->optional()->url(),
-            'body' => $this->faker->optional()->paragraphs(3, true),
+            'appendix' => fake()->optional()->url(),
+            'body' => fake()->optional()->paragraphs(3, true),
         ];
     }
 }

@@ -16,8 +16,8 @@ class MessageFactory extends Factory
         return [
             'project_id' => Project::factory(),
             'sender_id' => User::factory(),
-            'message' => $this->faker->paragraph(),
-            'is_read' => $this->faker->boolean(30),
+            'message' => fake()->paragraph(),
+            'is_read' => fake()->boolean(30),
         ];
     }
 }
