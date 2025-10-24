@@ -6,26 +6,22 @@ use Alison\ProjectManagementAssistant\Models\Technology;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
-/**
- * @extends Factory<Technology>
- */
 class TechnologyFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
-        $name = $this->faker->word();
+        $name = fake()->word();
 
         return [
             'slug' => Str::slug($name),
-            'name' => $name,
-            'description' => $this->faker->paragraph(),
-            'image' => $this->faker->imageUrl(640, 480, 'technology'),
-            'link' => $this->faker->url(),
+            'name' => ucfirst($name),
+            'description' => fake()->optional()->paragraph(),
+            'image' => fake()->optional()->randomElement([
+                'https://placehold.co/640x480/F59E0B/FFFFFF?text=Tech',
+                'https://placehold.co/640x480/EF4444/FFFFFF?text=Technology',
+                'https://placehold.co/640x480/06B6D4/FFFFFF?text=Stack',
+            ]),
+            'link' => fake()->optional()->url(),
         ];
     }
 }

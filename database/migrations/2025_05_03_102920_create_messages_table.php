@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('messages', function (Blueprint $table) {
@@ -16,14 +13,11 @@ return new class extends Migration
             $table->foreignUlid('project_id')->constrained()->cascadeOnDelete();
             $table->foreignUlid('sender_id')->references('id')->on('users')->cascadeOnDelete();
             $table->text('message');
-            $table->boolean('is_read')->default(false);
+            $table->boolean('is_read')->default(false)->index();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('messages');

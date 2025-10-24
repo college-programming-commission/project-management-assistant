@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('subevents', function (Blueprint $table) {
@@ -17,23 +14,17 @@ return new class extends Migration
             $table->ulid('depends_on')->nullable();
             $table->string('name', 128);
             $table->string('description', 512)->nullable();
-            $table->timestamp('start_date');
-            $table->timestamp('end_date')->nullable();
+            $table->timestampTz('start_date');
+            $table->timestampTz('end_date')->nullable();
             $table->char('bg_color', 7)->nullable();
             $table->char('fg_color', 7)->nullable();
             $table->timestamps();
-
-        });
-
-        // Додаємо зовнішній ключ після створення таблиці
-        Schema::table('subevents', function (Blueprint $table) {
+            
             $table->foreign('depends_on')->references('id')->on('subevents')->nullOnDelete();
+            $table->index('start_date');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('subevents');

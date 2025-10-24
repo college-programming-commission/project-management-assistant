@@ -3,22 +3,13 @@
 namespace Database\Seeders;
 
 use Alison\ProjectManagementAssistant\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // ПРИМІТКА: Головний адміністратор тепер створюється в AdminSeeder
-        // який завжди запускається при деплої через entrypoint.sh
-        
-        // Створення додаткового тестового адміністратора (тільки для development)
         if (app()->environment('local', 'development')) {
             $admin = User::query()->firstOrCreate(
                 ['email' => 'alisaadamus.aa@gmail.com'],

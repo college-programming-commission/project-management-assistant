@@ -9,9 +9,6 @@ use Illuminate\Database\Seeder;
 
 class SupervisorSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         if (User::query()->count() === 0) {

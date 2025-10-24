@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 
-class DatabaseSeeder extends Seeder
+class ProductionSeeder extends Seeder
 {
     public function run(): void
     {
@@ -13,13 +13,7 @@ class DatabaseSeeder extends Seeder
             SubjectSeeder::class,
             TechnologySeeder::class,
             CategorySeeder::class,
-            UserSeeder::class,
-            EventSeeder::class,
-            SubeventSeeder::class,
-            SupervisorSeeder::class,
-            ProjectSeeder::class,
-            MessageSeeder::class,
-            OfferSeeder::class,
+            AdminSeeder::class,
         ]);
     }
 }

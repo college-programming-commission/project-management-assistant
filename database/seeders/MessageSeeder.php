@@ -5,14 +5,10 @@ namespace Database\Seeders;
 use Alison\ProjectManagementAssistant\Models\Message;
 use Alison\ProjectManagementAssistant\Models\Project;
 use Alison\ProjectManagementAssistant\Models\Supervisor;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class MessageSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         if (Project::query()->count() === 0) {
@@ -55,14 +51,7 @@ class MessageSeeder extends Seeder
             ],
         ];
 
-/*        Message::factory()->count(30)->create([
-            'project_id' => fn() => $projects->random()->id,
-            'sender_id' => fn($attributes) => collect([
-                $supervisors->firstWhere('id', $projects->firstWhere('id', $attributes['project_id'])->supervisor_id)->user_id,
-                $projects->firstWhere('id', $attributes['project_id'])->assigned_to,
-            ])->random(),
-        ]);*/
-        foreach ($messages as $messageData) {
+foreach ($messages as $messageData) {
             Message::factory()->create([
                 'project_id' => fn() => $projects->random()->id,
                 'sender_id' => fn($attributes) => collect([

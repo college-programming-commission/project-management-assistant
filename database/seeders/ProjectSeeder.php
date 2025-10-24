@@ -11,9 +11,6 @@ use Illuminate\Database\Seeder;
 
 class ProjectSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         if (Event::query()->count() === 0) {
@@ -119,14 +116,7 @@ class ProjectSeeder extends Seeder
             ],
         ];
 
-/*        $projects = Project::factory()->count(40)->create(
-            [
-                'event_id' => fn() => $events->random()->id,
-                'supervisor_id' => fn() => $supervisors->random()->id,
-                'assigned_to' => fn() => rand(0, 1) ? $users->random()->id : null,
-            ]
-        );*/
-        foreach ($projects_data as $projectData) {
+foreach ($projects_data as $projectData) {
             Project::factory()->create([
                 'event_id' => fn() => $events->random()->id,
                 'supervisor_id' => fn() => $supervisors->random()->id,

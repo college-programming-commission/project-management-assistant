@@ -6,126 +6,47 @@ use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
-use Alison\ProjectManagementAssistant\Models\User;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // Reset cached roles and permissions
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Create permissions
         $permissions = [
-            // Користувачі
-            'view users',
-            'create users',
-            'edit users',
-            'delete users',
-
-            // Проекти
-            'view projects',
-            'create projects',
-            'edit projects',
-            'delete projects',
-            'assign projects',
-
-            // Категорії
-            'view categories',
-            'create categories',
-            'edit categories',
-            'delete categories',
-
-            // Предмети
-            'view subjects',
-            'create subjects',
-            'edit subjects',
-            'delete subjects',
-
-            // Технології
-            'view technologies',
-            'create technologies',
-            'edit technologies',
-            'delete technologies',
-
-            // Події
-            'view events',
-            'create events',
-            'edit events',
-            'delete events',
-
-            // Пропозиції
-            'view offers',
-            'create offers',
-            'edit offers',
-            'delete offers',
-
-            // Керівники
-            'view supervisors',
-            'create supervisors',
-            'edit supervisors',
-            'delete supervisors',
-
-            // Адмін-панель
+            'view users', 'create users', 'edit users', 'delete users',
+            'view projects', 'create projects', 'edit projects', 'delete projects', 'assign projects',
+            'view categories', 'create categories', 'edit categories', 'delete categories',
+            'view subjects', 'create subjects', 'edit subjects', 'delete subjects',
+            'view technologies', 'create technologies', 'edit technologies', 'delete technologies',
+            'view events', 'create events', 'edit events', 'delete events',
+            'view offers', 'create offers', 'edit offers', 'delete offers',
+            'view supervisors', 'create supervisors', 'edit supervisors', 'delete supervisors',
             'access admin panel',
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
+            Permission::query()->firstOrCreate(['name' => $permission]);
         }
 
-        // Створення ролей та призначення дозволів
+        $admin = Role::query()->firstOrCreate(['name' => 'admin']);
+        $admin->syncPermissions(Permission::all());
 
-        // Роль адміністратора (може все)
-        $adminRole = Role::create(['name' => 'admin']);
-        $adminRole->givePermissionTo(Permission::all());
-
-        // Роль студента
-        $studentRole = Role::create(['name' => 'student']);
-        $studentRole->givePermissionTo([
-            'view projects',
-            'view categories',
-            'view subjects',
-            'view technologies',
-            'view events',
-            'view offers',
-            'create offers',
-            'edit offers',
-            'delete offers',
+        $student = Role::query()->firstOrCreate(['name' => 'student']);
+        $student->syncPermissions([
+            'view projects', 'view categories', 'view subjects', 'view technologies',
+            'view events', 'view offers', 'create offers', 'edit offers', 'delete offers',
             'view supervisors',
         ]);
 
-        // Роль викладача
-        $teacherRole = Role::create(['name' => 'teacher']);
-        $teacherRole->givePermissionTo([
-            'view projects',
-            'create projects',
-            'edit projects',
-            'delete projects',
-            'view categories',
-            'create categories',
-            'edit categories',
-            'delete categories',
-            'view subjects',
-            'create subjects',
-            'edit subjects',
-            'delete subjects',
-            'view technologies',
-            'create technologies',
-            'edit technologies',
-            'delete technologies',
-            'view events',
-            'create events',
-            'edit events',
-            'delete events',
-            'view offers',
-            'view supervisors',
-            'create supervisors',
-            'edit supervisors',
-            'delete supervisors',
+        $teacher = Role::query()->firstOrCreate(['name' => 'teacher']);
+        $teacher->syncPermissions([
+            'view projects', 'create projects', 'edit projects', 'delete projects',
+            'view categories', 'create categories', 'edit categories', 'delete categories',
+            'view subjects', 'create subjects', 'edit subjects', 'delete subjects',
+            'view technologies', 'create technologies', 'edit technologies', 'delete technologies',
+            'view events', 'create events', 'edit events', 'delete events',
+            'view offers', 'view supervisors', 'create supervisors', 'edit supervisors', 'delete supervisors',
         ]);
     }
 }

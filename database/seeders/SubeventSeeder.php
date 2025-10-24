@@ -4,16 +4,11 @@ namespace Database\Seeders;
 
 use Alison\ProjectManagementAssistant\Models\Event;
 use Alison\ProjectManagementAssistant\Models\Subevent;
-use Database\Factories\SubeventFactory;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
 class SubeventSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         if (Event::query()->count() === 0) {

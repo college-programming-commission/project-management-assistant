@@ -8,19 +8,12 @@ use Illuminate\Database\Seeder;
 
 class EventSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         if (Category::query()->count() === 0) {
             $this->call(CategorySeeder::class);
         }
 
-/*        $categories = Category::all();
-        Event::factory()->count(10)->create([
-            'category_id' => fn() => $categories->random()->id,
-        ]);*/
         $categories = Category::all();
 
         $events = [

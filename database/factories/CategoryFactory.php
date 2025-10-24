@@ -5,27 +5,16 @@ namespace Database\Factories;
 use Alison\ProjectManagementAssistant\Models\Category;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends Factory<Category>
- */
 class CategoryFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
-            'name' => $this->faker->word(),
-            'freezing_period' => $this->faker->numberBetween(3, 5),
-            'course_number' => $this->faker->numberBetween(1, 4),
-            'period' => $this->faker->numberBetween(1, 5),
-            'attachments' => json_encode([
-                'file1' => $this->faker->url(),
-                'file2' => $this->faker->url(),
-            ]),
+            'name' => fake()->randomElement(['Навчальна практика', 'Курсова робота', 'Курсовий проєкт', 'Виробнича практика', 'Переддипломна практика', 'Дипломний проєкт']),
+            'freezing_period' => fake()->numberBetween(3, 5),
+            'course_number' => fake()->numberBetween(2, 4),
+            'period' => fake()->numberBetween(14, 35),
+            'attachments' => null,
         ];
     }
 }

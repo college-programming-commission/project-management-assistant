@@ -2,16 +2,12 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
+return new class extends Migration
+{
     public function up(): void
     {
-
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('id');
             $table->ulid('id')->primary();
@@ -21,7 +17,7 @@ return new class extends Migration {
             $table->string('middle_name', 50)->nullable();
             $table->string('description', 512)->nullable();
             $table->string('avatar', 2048)->nullable();
-            $table->integer('course_number')->nullable();
+            $table->unsignedSmallInteger('course_number')->nullable();
         });
 
         Schema::table('sessions', function (Blueprint $table) {
@@ -31,12 +27,9 @@ return new class extends Migration {
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('users');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('users');
     }
 };
