@@ -31,17 +31,40 @@ echo "Redis is ready."
 # Key generation
 if [ -z "$APP_KEY" ]; then php artisan key:generate --force; fi
 
-# Migrations & Seeders
+# Migrations & Seeders - Only run on app container, not on reverb/queue workers
+if [ "${CONTAINER_ROLE:-app}" = "app" ]; then
+    echo "Running migrations on app container..."
+    # Check if migrations have already been run by checking for migrations table
+    MIGRATION_CHECK=$(php artisan migrate:status 2>&1 | grep -c "Migration table not found" || echo "0")
+
 if [ "${APP_ENV}" = "production" ]; then
-    echo "Running database migrations with refresh (rollback + migrate)..."
-    php artisan migrate:refresh --force --no-interaction
-    echo "Seeding essential data for production..."
-    php artisan db:seed --class=Database\\Seeders\\ProductionSeeder --force --no-interaction
+    echo "Running database migrations..."
+    php artisan migrate --force --no-interaction || { echo "Migration failed!"; exit 1; }
+    
+    # Only seed if this is first run (no migrations existed before)
+    if [ "$MIGRATION_CHECK" != "0" ]; then
+        echo "Seeding essential data for production..."
+        php artisan db:seed --class=Database\\Seeders\\ProductionSeeder --force --no-interaction || { echo "Seeding failed, but continuing..."; }
+    else
+        echo "Database already initialized, skipping seeding..."
+    fi
 else
-    echo "Running database migrations with fresh (drop all tables)..."
-    php artisan migrate:fresh --force --no-interaction
-    echo "Seeding all data for development..."
-    php artisan db:seed --force --no-interaction
+    # Development mode
+    if [ "$MIGRATION_CHECK" != "0" ]; then
+        # First run - do fresh migration
+        echo "First run detected. Running database migrations with fresh (drop all tables)..."
+        php artisan migrate:fresh --force --no-interaction || { echo "Migration failed!"; exit 1; }
+        echo "Seeding all data for development..."
+        php artisan db:seed --force --no-interaction || { echo "Seeding failed, but continuing..."; }
+    else
+        # Subsequent runs - just migrate
+        echo "Database already exists. Running migrations..."
+        php artisan migrate --force --no-interaction || { echo "Migration failed!"; exit 1; }
+        echo "Skipping seeding (database already initialized)..."
+    fi
+fi
+else
+    echo "Skipping migrations (not app container, role: ${CONTAINER_ROLE})..."
 fi
 
 # Ensure frontend assets exist
