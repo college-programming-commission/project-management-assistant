@@ -20,8 +20,11 @@ return new class extends Migration
             $table->char('fg_color', 7)->nullable();
             $table->timestamps();
             
-            $table->foreign('depends_on')->references('id')->on('subevents')->nullOnDelete();
             $table->index('start_date');
+        });
+
+        Schema::table('subevents', function (Blueprint $table) {
+            $table->foreign('depends_on')->references('id')->on('subevents')->nullOnDelete();
         });
     }
 
