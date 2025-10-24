@@ -38,11 +38,16 @@ if [ "${CONTAINER_ROLE:-app}" = "app" ]; then
     MIGRATION_CHECK=$(php artisan migrate:status 2>&1 | grep -c "Migration table not found" || echo "0")
 
 if [ "${APP_ENV}" = "production" ]; then
-    echo "Running database migrations with refresh (rollback + migrate)..."
-    php artisan migrate:refresh --force --no-interaction || { echo "Migration failed!"; exit 1; }
+    echo "Running database migrations..."
+    php artisan migrate --force --no-interaction || { echo "Migration failed!"; exit 1; }
     
-    echo "Seeding essential data for production..."
-    php artisan db:seed --class=Database\\Seeders\\ProductionSeeder --force --no-interaction || { echo "Seeding failed, but continuing..."; }
+    # Only seed if this is first run (no migrations existed before)
+    if [ "$MIGRATION_CHECK" != "0" ]; then
+        echo "Seeding essential data for production..."
+        php artisan db:seed --class=Database\\Seeders\\ProductionSeeder --force --no-interaction || { echo "Seeding failed, but continuing..."; }
+    else
+        echo "Database already initialized, skipping seeding..."
+    fi
 else
     # Development mode
     if [ "$MIGRATION_CHECK" != "0" ]; then
