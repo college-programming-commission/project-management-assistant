@@ -19,9 +19,6 @@ echo "Setting up MinIO buckets...\n";
 try {
     $disk = \Illuminate\Support\Facades\Storage::disk('s3');
     
-    // Налаштувати публічну bucket policy спочатку
-    echo "Setting public bucket policy...\n";
-    
     // Для setup використовуємо внутрішній endpoint
     $internalEndpoint = str_replace('https://s3-kafedra.phfk.college', 'http://minio:9000', config('filesystems.disks.s3.endpoint'));
     
@@ -37,6 +34,23 @@ try {
     ]);
     
     $bucket = config('filesystems.disks.s3.bucket');
+    
+    // Перевірити чи існує bucket, якщо ні - створити
+    if (!$s3Client->doesBucketExist($bucket)) {
+        echo "Bucket {$bucket} does not exist, creating...\n";
+        $s3Client->createBucket([
+            'Bucket' => $bucket,
+        ]);
+        
+        // Чекаємо трохи, щоб bucket створився
+        sleep(2);
+        echo "✓ Bucket {$bucket} created successfully\n";
+    } else {
+        echo "✓ Bucket {$bucket} already exists\n";
+    }
+    
+    // Налаштувати публічну bucket policy
+    echo "Setting public bucket policy...\n";
     
     $policy = [
         'Version' => '2012-10-17',
