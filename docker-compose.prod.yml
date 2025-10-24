@@ -15,6 +15,8 @@ services:
         working_dir: /var/www/html
         env_file:
             - .env
+        environment:
+            - CONTAINER_ROLE=app
         volumes:
             - app-public:/var/www/html/public
             - app-storage:/var/www/html/storage
@@ -116,6 +118,8 @@ services:
         entrypoint: ['php', 'artisan', 'reverb:start', '--host=0.0.0.0', '--port=8080']
         env_file:
             - .env
+        environment:
+            - CONTAINER_ROLE=reverb
         ports:
             - '${REVERB_EXTERNAL_PORT:-8081}:8080'
         networks:
