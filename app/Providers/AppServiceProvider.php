@@ -18,6 +18,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(MarkdownService::class, function ($app) {
             return new MarkdownService;
         });
+
+        $this->app->singleton(\Alison\ProjectManagementAssistant\Services\CacheService::class, function ($app) {
+            return new \Alison\ProjectManagementAssistant\Services\CacheService;
+        });
     }
 
     /**

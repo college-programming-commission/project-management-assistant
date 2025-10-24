@@ -177,7 +177,8 @@ class EventController extends Controller
 
     public function show(Event $event): View
     {
-        $user = Auth::user();
+        $this->authorize('view', $event);
+
         $cacheKey = "event_{$event->id}_show";
         $cacheDuration = now()->addHours(6);
 
@@ -191,32 +192,6 @@ class EventController extends Controller
             ]);
         });
 
-        $this->authorizeEventAccess($event, $user);
-
         return view('events.show', compact('event'));
-    }
-
-    private function authorizeEventAccess(Event $event, $user): void
-    {
-        if ($user->hasRole('admin')) {
-            return;
-        }
-
-        if ($user->hasRole('teacher')) {
-            $isSupervisor = $event->supervisors->contains('user_id', $user->id);
-            if (!$isSupervisor) {
-                abort(403, 'You do not have access to this event as you are not its supervisor');
-            }
-            return;
-        }
-
-        if ($user->hasRole('student')) {
-            if ($event->category->course_number != $user->course_number) {
-                abort(403, 'You do not have access to this event as it is assigned to a different course');
-            }
-            return;
-        }
-
-        abort(403, 'You do not have permission to view this event');
     }
 }
