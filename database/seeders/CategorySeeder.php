@@ -23,16 +23,25 @@ class CategorySeeder extends Seeder
         ];
 
         foreach ($categories as $categoryData) {
-            $category = Category::query()->create($categoryData);
+            $category = Category::query()->firstOrCreate(
+                ['name' => $categoryData['name']],
+                [
+                    'freezing_period' => $categoryData['freezing_period'],
+                    'course_number' => $categoryData['course_number'],
+                    'period' => $categoryData['period'],
+                ]
+            );
 
-            $subjects = Subject::query()
-                ->where('course_number', $category->course_number)
-                ->inRandomOrder()
-                ->limit(rand(1, 3))
-                ->get();
+            if ($category->subjects()->count() === 0) {
+                $subjects = Subject::query()
+                    ->where('course_number', $category->course_number)
+                    ->inRandomOrder()
+                    ->limit(rand(1, 3))
+                    ->get();
 
-            if ($subjects->isNotEmpty()) {
-                $category->subjects()->attach($subjects);
+                if ($subjects->isNotEmpty()) {
+                    $category->subjects()->attach($subjects);
+                }
             }
         }
     }

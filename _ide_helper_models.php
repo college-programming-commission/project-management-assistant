@@ -219,12 +219,23 @@ namespace Alison\ProjectManagementAssistant\Models{
 
 namespace Alison\ProjectManagementAssistant\Models{
 /**
+ * @property string $id
+ * @property string $event_id
+ * @property string|null $depends_on
+ * @property string $name
+ * @property string|null $description
+ * @property \Illuminate\Support\Carbon $start_date
+ * @property \Illuminate\Support\Carbon|null $end_date
+ * @property string|null $bg_color
+ * @property string|null $fg_color
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Subevent> $dependentSubevents
  * @property-read int|null $dependent_subevents_count
  * @property-read Subevent|null $dependsOn
  * @property-read mixed $description_html
  * @property-read mixed $description_preview
- * @property-read \Alison\ProjectManagementAssistant\Models\Event|null $event
+ * @property-read \Alison\ProjectManagementAssistant\Models\Event $event
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subevent betweenDates(string $startDate, string $endDate)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subevent byEvent(string|int $eventId)
  * @method static \Database\Factories\SubeventFactory factory($count = null, $state = [])
@@ -233,6 +244,17 @@ namespace Alison\ProjectManagementAssistant\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subevent query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subevent searchByDescription(string $text)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subevent searchByName(string $name)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subevent whereBgColor($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subevent whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subevent whereDependsOn($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subevent whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subevent whereEndDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subevent whereEventId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subevent whereFgColor($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subevent whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subevent whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subevent whereStartDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subevent whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 	#[\AllowDynamicProperties]
@@ -241,6 +263,14 @@ namespace Alison\ProjectManagementAssistant\Models{
 
 namespace Alison\ProjectManagementAssistant\Models{
 /**
+ * @property string $id
+ * @property string $slug
+ * @property string $name
+ * @property int|null $course_number
+ * @property string|null $description
+ * @property string|null $image
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Alison\ProjectManagementAssistant\Models\Category> $categories
  * @property-read int|null $categories_count
  * @property-read mixed $description_html
@@ -254,6 +284,14 @@ namespace Alison\ProjectManagementAssistant\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subject query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subject searchByDescription(string $text)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subject searchByName(string $text)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subject whereCourseNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subject whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subject whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subject whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subject whereImage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subject whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subject whereSlug($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subject whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 	#[\AllowDynamicProperties]
@@ -262,10 +300,17 @@ namespace Alison\ProjectManagementAssistant\Models{
 
 namespace Alison\ProjectManagementAssistant\Models{
 /**
- * @property-read \Alison\ProjectManagementAssistant\Models\Event|null $event
+ * @property string $id
+ * @property string $event_id
+ * @property string $user_id
+ * @property string|null $note
+ * @property int|null $slot_count
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Alison\ProjectManagementAssistant\Models\Event $event
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Alison\ProjectManagementAssistant\Models\Project> $projects
  * @property-read int|null $projects_count
- * @property-read \Alison\ProjectManagementAssistant\Models\User|null $user
+ * @property-read \Alison\ProjectManagementAssistant\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Supervisor activeEvent()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Supervisor byEvent(string|int $eventId)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Supervisor bySlotCount(int $slotCount)
@@ -277,6 +322,13 @@ namespace Alison\ProjectManagementAssistant\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Supervisor newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Supervisor query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Supervisor searchByNote(string $text)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Supervisor whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Supervisor whereEventId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Supervisor whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Supervisor whereNote($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Supervisor whereSlotCount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Supervisor whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Supervisor whereUserId($value)
  * @mixin \Eloquent
  */
 	#[\AllowDynamicProperties]
@@ -285,6 +337,14 @@ namespace Alison\ProjectManagementAssistant\Models{
 
 namespace Alison\ProjectManagementAssistant\Models{
 /**
+ * @property string $id
+ * @property string $slug
+ * @property string $name
+ * @property string|null $description
+ * @property string|null $image
+ * @property string|null $link
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read mixed $description_html
  * @property-read mixed $description_preview
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Alison\ProjectManagementAssistant\Models\Project> $projects
@@ -296,6 +356,14 @@ namespace Alison\ProjectManagementAssistant\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Technology newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Technology query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Technology searchByDescription(string $text)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Technology whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Technology whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Technology whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Technology whereImage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Technology whereLink($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Technology whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Technology whereSlug($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Technology whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Technology withLink()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Technology withoutLink()
  * @mixin \Eloquent
@@ -306,8 +374,6 @@ namespace Alison\ProjectManagementAssistant\Models{
 
 namespace Alison\ProjectManagementAssistant\Models{
 /**
- * @property int $id
- * @property string $name
  * @property string $email
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property string $password
@@ -316,9 +382,20 @@ namespace Alison\ProjectManagementAssistant\Models{
  * @property string|null $profile_photo_path
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $id
+ * @property string $first_name
+ * @property string $last_name
+ * @property string|null $middle_name
+ * @property string|null $description
+ * @property string|null $avatar
+ * @property int|null $course_number
+ * @property string|null $two_factor_secret
+ * @property string|null $two_factor_recovery_codes
+ * @property string|null $two_factor_confirmed_at
  * @property-read mixed $description_html
  * @property-read mixed $description_preview
  * @property-read string $full_name
+ * @property-read string $name
  * @property-read string $short_name
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
@@ -353,15 +430,23 @@ namespace Alison\ProjectManagementAssistant\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User recentFirst()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User role($roles, $guard = null, $without = false)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User verified()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereAvatar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCourseNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmailVerifiedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereFirstName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereGoogleId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereLastName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereMiddleName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePassword($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereProfilePhotoPath($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRememberToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereTwoFactorConfirmedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereTwoFactorRecoveryCodes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereTwoFactorSecret($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutPermission($permissions)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutRole($roles, $guard = null)

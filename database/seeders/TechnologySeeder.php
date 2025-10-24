@@ -62,13 +62,15 @@ class TechnologySeeder extends Seeder
         ];
 
         foreach ($technologies as $technology) {
-            Technology::query()->create([
-                'slug' => $technology['slug'],
-                'name' => $technology['name'],
-                'description' => null,
-                'image' => null,
-                'link' => $technology['link'],
-            ]);
+            Technology::query()->firstOrCreate(
+                ['slug' => $technology['slug']],
+                [
+                    'name' => $technology['name'],
+                    'description' => null,
+                    'image' => null,
+                    'link' => $technology['link'],
+                ]
+            );
         }
     }
 }

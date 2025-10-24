@@ -35,13 +35,15 @@ class SubjectSeeder extends Seeder
         ];
 
         foreach ($subjects as $subject) {
-            Subject::query()->create([
-                'slug' => Str::slug($subject['name']),
-                'name' => $subject['name'],
-                'course_number' => $subject['course_number'],
-                'description' => null,
-                'image' => null,
-            ]);
+            Subject::query()->firstOrCreate(
+                ['slug' => Str::slug($subject['name'])],
+                [
+                    'name' => $subject['name'],
+                    'course_number' => $subject['course_number'],
+                    'description' => null,
+                    'image' => null,
+                ]
+            );
         }
     }
 }
