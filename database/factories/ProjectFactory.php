@@ -11,6 +11,8 @@ use Illuminate\Support\Str;
 
 class ProjectFactory extends Factory
 {
+    protected $model = Project::class;
+    
     public function definition(): array
     {
         $name = $this->faker->unique()->sentence(3);

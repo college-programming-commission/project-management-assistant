@@ -8,6 +8,8 @@ use Illuminate\Support\Str;
 
 class TechnologyFactory extends Factory
 {
+    protected $model = Technology::class;
+    
     public function definition(): array
     {
         $name = $this->faker->word();

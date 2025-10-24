@@ -8,6 +8,8 @@ use Illuminate\Support\Str;
 
 class SubjectFactory extends Factory
 {
+    protected $model = Subject::class;
+    
     public function definition(): array
     {
         $name = $this->faker->words(3, true);

@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 class SubeventFactory extends Factory
 {
+    protected $model = Subevent::class;
+    
     public function definition(): array
     {
         $startDate = $this->faker->dateTimeBetween('-1 week', '+1 month');
