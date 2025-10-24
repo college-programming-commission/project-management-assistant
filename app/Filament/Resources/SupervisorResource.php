@@ -95,7 +95,7 @@ class SupervisorResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('event')
+                Tables\Filters\SelectFilter::make('event')
                     ->label('Подія')
                     ->relationship('event', 'name')
                     ->searchable()
