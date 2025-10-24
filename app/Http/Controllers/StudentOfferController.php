@@ -9,6 +9,7 @@ use Alison\ProjectManagementAssistant\Models\Supervisor;
 use Alison\ProjectManagementAssistant\Notifications\NewOfferNotification;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Alison\ProjectManagementAssistant\Http\Requests\StoreOfferRequest;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -44,17 +45,9 @@ class StudentOfferController extends Controller
         return view('student.offers.index', compact('offers'));
     }
 
-    /**
-     * Створення нової заявки
-     */
-    public function store(Request $request, Project $project): RedirectResponse
+    public function store(StoreOfferRequest $request, Project $project): RedirectResponse
     {
         $user = Auth::user();
-
-        // Перевірка, чи є користувач студентом
-        if (!$user->hasRole('student')) {
-            abort(403, 'Ви не маєте доступу до цієї функції');
-        }
 
         // Перевірка, чи проект вже має призначеного студента
         if ($project->assigned_to !== null) {

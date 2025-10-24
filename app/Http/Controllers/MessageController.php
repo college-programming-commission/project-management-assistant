@@ -8,6 +8,7 @@ use Alison\ProjectManagementAssistant\Models\Message;
 use Alison\ProjectManagementAssistant\Models\Project;
 use Alison\ProjectManagementAssistant\Notifications\NewChatMessageNotification;
 use Illuminate\Http\JsonResponse;
+use Alison\ProjectManagementAssistant\Http\Requests\SendMessageRequest;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -15,13 +16,9 @@ use Illuminate\Support\Facades\Cache;
 
 class MessageController extends Controller
 {
-    /**
-     * Отримання повідомлень для проекту
-     */
     public function getMessages(Project $project): JsonResponse
     {
-        // Перевірка доступу до проекту
-        $this->checkProjectAccess($project);
+        $this->authorize('accessChat', $project);
         
         $cacheKey = "project_{$project->id}_messages";
         $cacheDuration = now()->addMinutes(5); // Кешуємо на 5 хвилин (повідомлення можуть часто оновлюватися)
@@ -51,15 +48,11 @@ class MessageController extends Controller
     /**
      * Відправлення нового повідомлення
      */
-    public function sendMessage(Request $request, Project $project): JsonResponse
+    public function sendMessage(SendMessageRequest $request, Project $project): JsonResponse
     {
-        // Перевірка доступу до проекту
-        $this->checkProjectAccess($project);
+        $this->authorize('accessChat', $project);
 
-        // Валідація даних
-        $validated = $request->validate([
-            'message' => 'required|string|max:1000',
-        ]);
+        $validated = $request->validated();
 
         // Створення повідомлення
         $message = Message::create([
