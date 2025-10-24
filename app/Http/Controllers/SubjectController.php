@@ -10,14 +10,10 @@ use Illuminate\Routing\Controller;
 
 class SubjectController extends Controller
 {
-    /**
-     * Відображення списку всіх предметів
-     */
     public function index(Request $request): View
     {
         $query = Subject::query()->with(['categories']);
 
-        // Фільтрація за пошуком
         if ($request->filled('search')) {
             $query->where(function($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%')
@@ -25,12 +21,10 @@ class SubjectController extends Controller
             });
         }
 
-        // Фільтрація за курсом
         if ($request->filled('course_number')) {
             $query->where('course_number', $request->course_number);
         }
 
-        // Фільтрація за категорією
         if ($request->filled('category')) {
             $query->byCategory($request->category);
         }
@@ -43,9 +37,6 @@ class SubjectController extends Controller
         return view('subjects.index', compact('subjects', 'categories'));
     }
 
-    /**
-     * Відображення деталей предмету
-     */
     public function show(Subject $subject): View
     {
         $subject->load(['categories']);

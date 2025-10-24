@@ -10,29 +10,22 @@ use Illuminate\Routing\Controller;
 
 class CategoryController extends Controller
 {
-    /**
-     * Відображення списку всіх категорій
-     */
     public function index(Request $request): View
     {
         $query = Category::query()->with(['subjects']);
 
-        // Фільтрація за пошуком
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        // Фільтрація за курсом
         if ($request->filled('course_number')) {
             $query->where('course_number', $request->course_number);
         }
 
-        // Фільтрація за предметом
         if ($request->filled('subject')) {
             $query->withSubject($request->subject);
         }
 
-        // Фільтрація за періодом
         if ($request->filled('min_period')) {
             $query->minPeriod($request->min_period);
         }
@@ -49,9 +42,6 @@ class CategoryController extends Controller
         return view('categories.index', compact('categories', 'subjects'));
     }
 
-    /**
-     * Відображення деталей категорії
-     */
     public function show(Category $category): View
     {
         $category->load(['subjects']);

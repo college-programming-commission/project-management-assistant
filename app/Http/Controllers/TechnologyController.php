@@ -9,22 +9,15 @@ use Illuminate\Routing\Controller;
 
 class TechnologyController extends Controller
 {
-    /**
-     * Відображення списку всіх технологій
-     */
     public function index(Request $request): View
     {
         $query = Technology::query()->with(['projects']);
-
-        // Фільтрація за пошуком
         if ($request->filled('search')) {
             $query->where(function($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%')
                   ->orWhere('description', 'like', '%' . $request->search . '%');
             });
         }
-
-        // Фільтрація за наявністю посилання
         if ($request->filled('has_link')) {
             if ($request->has_link == 'yes') {
                 $query->withLink();
@@ -32,8 +25,6 @@ class TechnologyController extends Controller
                 $query->withoutLink();
             }
         }
-
-        // Фільтрація за проектом
         if ($request->filled('project')) {
             $query->byProject($request->project);
         }
@@ -44,9 +35,6 @@ class TechnologyController extends Controller
         return view('technologies.index', compact('technologies'));
     }
 
-    /**
-     * Відображення деталей технології
-     */
     public function show(Technology $technology): View
     {
         $technology->load(['projects']);
