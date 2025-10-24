@@ -2,8 +2,7 @@
 
 namespace Alison\ProjectManagementAssistant\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Alison\ProjectManagementAssistant\Services\MarkdownService;
+use Alison\ProjectManagementAssistant\Models\Concerns\HasMarkdownFields;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -28,20 +27,14 @@ class User extends Authenticatable implements FilamentUser
     use HasApiTokens;
     /** @use HasFactory<UserFactory> */
     use HasFactory;
-
+    use HasMarkdownFields;
     use HasProfilePhoto;
-
     use HasPushSubscriptions;
     use HasRoles;
     use HasUlids;
     use Notifiable;
     use TwoFactorAuthenticatable;
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
@@ -49,11 +42,6 @@ class User extends Authenticatable implements FilamentUser
         'two_factor_secret',
     ];
 
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array<int, string>
-     */
     protected $appends = [
         'profile_photo_url',
         'full_name',
@@ -63,7 +51,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function supervisors(): HasMany
     {
-        return $this->hasMany(Supervisor::class, 'supervisors');
+        return $this->hasMany(Supervisor::class, 'user_id');
     }
 
     public function projects(): HasMany
@@ -130,17 +118,11 @@ class User extends Authenticatable implements FilamentUser
         return $query->limit($limit);
     }
 
-    /**
-     * Отримати ім'я користувача (для сумісності з Filament)
-     */
     public function getNameAttribute(): string
     {
         return $this->getFullNameAttribute();
     }
 
-    /**
-     * Отримати повне ім'я користувача
-     */
     public function getFullNameAttribute(): string
     {
         $parts = array_filter([
@@ -152,9 +134,6 @@ class User extends Authenticatable implements FilamentUser
         return implode(' ', $parts);
     }
 
-    /**
-     * Отримати коротке ім'я користувача (прізвище та ініціали)
-     */
     public function getShortNameAttribute(): string
     {
         $parts = [$this->last_name];
@@ -175,11 +154,6 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasRole('admin');
     }
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -188,39 +162,13 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
-    /**
-     * Отримати HTML версію опису користувача
-     */
     protected function descriptionHtml(): Attribute
     {
-        return Attribute::make(
-            get: function () {
-                if (empty($this->description)) {
-                    return '';
-                }
-
-                $markdownService = app(MarkdownService::class);
-
-                return $markdownService->toHtml($this->description);
-            }
-        );
+        return $this->markdownToHtml('description');
     }
 
-    /**
-     * Отримати попередній перегляд опису користувача
-     */
     protected function descriptionPreview(): Attribute
     {
-        return Attribute::make(
-            get: function () {
-                if (empty($this->description)) {
-                    return '';
-                }
-
-                $markdownService = app(MarkdownService::class);
-
-                return $markdownService->getPreview($this->description);
-            }
-        );
+        return $this->markdownPreview('description');
     }
 }

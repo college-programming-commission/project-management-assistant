@@ -54,6 +54,4 @@ class Offer extends Model
     {
         return $query->whereDate('created_at', now()->toDateString());
     }
-
-
 }

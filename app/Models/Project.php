@@ -2,6 +2,7 @@
 
 namespace Alison\ProjectManagementAssistant\Models;
 
+use Alison\ProjectManagementAssistant\Models\Concerns\HasMarkdownFields;
 use Database\Factories\ProjectFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -18,7 +19,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Project extends Model
 {
     /** @use HasFactory<ProjectFactory> */
-    use HasFactory, HasUlids;
+    use HasFactory;
+    use HasMarkdownFields;
+    use HasUlids;
 
     public function event(): BelongsTo
     {
@@ -126,45 +129,15 @@ class Project extends Model
         return $query->orderBy('created_at', $direction);
     }
 
-    /**
-     * Отримати HTML версію опису проекту
-     */
     protected function bodyHtml(): Attribute
     {
-        return Attribute::make(
-            get: function () {
-                if (empty($this->body)) {
-                    return '';
-                }
-
-                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
-
-                return $markdownService->toHtml($this->body);
-            }
-        );
+        return $this->markdownToHtml('body');
     }
 
-    /**
-     * Отримати попередній перегляд опису проекту
-     */
     protected function bodyPreview(): Attribute
     {
-        return Attribute::make(
-            get: function () {
-                if (empty($this->body)) {
-                    return '';
-                }
-
-                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
-
-                return $markdownService->getPreview($this->body);
-            }
-        );
+        return $this->markdownPreview('body');
     }
-
-    /**
-     * Отримати кількість непрочитаних повідомлень для поточного користувача
-     */
     public function getUnreadMessagesCountAttribute(): int
     {
         $currentUserId = auth()->id();
@@ -178,17 +151,11 @@ class Project extends Model
             ->count();
     }
 
-    /**
-     * Перевірити, чи є непрочитані повідомлення для поточного користувача
-     */
     public function getHasUnreadMessagesAttribute(): bool
     {
         return $this->getUnreadMessagesCountAttribute() > 0;
     }
 
-    /**
-     * Отримати кількість проектів в події
-     */
     public function getEventProjectsCountAttribute(): int
     {
         if (! $this->event) {

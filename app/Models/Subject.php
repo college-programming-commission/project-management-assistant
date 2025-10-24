@@ -2,6 +2,7 @@
 
 namespace Alison\ProjectManagementAssistant\Models;
 
+use Alison\ProjectManagementAssistant\Models\Concerns\HasMarkdownFields;
 use Database\Factories\SubjectFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -16,7 +17,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Subject extends Model
 {
     /** @use HasFactory<SubjectFactory> */
-    use HasFactory, HasUlids;
+    use HasFactory;
+    use HasMarkdownFields;
+    use HasUlids;
 
     public function categories(): BelongsToMany
     {
@@ -50,39 +53,13 @@ class Subject extends Model
         });
     }
 
-    /**
-     * Отримати HTML версію опису
-     */
     protected function descriptionHtml(): Attribute
     {
-        return Attribute::make(
-            get: function () {
-                if (empty($this->description)) {
-                    return '';
-                }
-
-                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
-
-                return $markdownService->toHtml($this->description);
-            }
-        );
+        return $this->markdownToHtml('description');
     }
 
-    /**
-     * Отримати попередній перегляд опису
-     */
     protected function descriptionPreview(): Attribute
     {
-        return Attribute::make(
-            get: function () {
-                if (empty($this->description)) {
-                    return '';
-                }
-
-                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
-
-                return $markdownService->getPreview($this->description);
-            }
-        );
+        return $this->markdownPreview('description');
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Alison\ProjectManagementAssistant\Models;
 
-use Alison\ProjectManagementAssistant\Services\MarkdownService;
+use Alison\ProjectManagementAssistant\Models\Concerns\HasMarkdownFields;
 use Database\Factories\MessageFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -17,7 +17,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Message extends Model
 {
     /** @use HasFactory<MessageFactory> */
-    use HasFactory, HasUlids;
+    use HasFactory;
+    use HasMarkdownFields;
+    use HasUlids;
 
     public function project(): BelongsTo
     {
@@ -44,37 +46,13 @@ class Message extends Model
         return $query->where('is_read', $isRead);
     }
 
-    /**
-     * Отримати HTML версію повідомлення
-     */
     protected function messageHtml(): Attribute
     {
-        return Attribute::make(
-            get: function () {
-                if (empty($this->message)) {
-                    return '';
-                }
-
-                $markdownService = app(MarkdownService::class);
-                return $markdownService->toHtml($this->message);
-            }
-        );
+        return $this->markdownToHtml('message');
     }
 
-    /**
-     * Отримати попередній перегляд повідомлення
-     */
     protected function messagePreview(): Attribute
     {
-        return Attribute::make(
-            get: function () {
-                if (empty($this->message)) {
-                    return '';
-                }
-
-                $markdownService = app(MarkdownService::class);
-                return $markdownService->getPreview($this->message, 100);
-            }
-        );
+        return $this->markdownPreview('message', 100);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Alison\ProjectManagementAssistant\Models;
 
+use Alison\ProjectManagementAssistant\Models\Concerns\HasMarkdownFields;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -15,7 +16,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Subevent extends Model
 {
-    use HasFactory, HasUlids;
+    use HasFactory;
+    use HasMarkdownFields;
+    use HasUlids;
 
     protected $casts = [
         'start_date' => 'datetime',
@@ -57,39 +60,13 @@ class Subevent extends Model
         return $query->where('description', 'LIKE', "%{$text}%");
     }
 
-    /**
-     * Отримати HTML версію опису
-     */
     protected function descriptionHtml(): Attribute
     {
-        return Attribute::make(
-            get: function () {
-                if (empty($this->description)) {
-                    return '';
-                }
-
-                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
-
-                return $markdownService->toHtml($this->description);
-            }
-        );
+        return $this->markdownToHtml('description');
     }
 
-    /**
-     * Отримати попередній перегляд опису
-     */
     protected function descriptionPreview(): Attribute
     {
-        return Attribute::make(
-            get: function () {
-                if (empty($this->description)) {
-                    return '';
-                }
-
-                $markdownService = app(\Alison\ProjectManagementAssistant\Services\MarkdownService::class);
-
-                return $markdownService->getPreview($this->description);
-            }
-        );
+        return $this->markdownPreview('description');
     }
 }

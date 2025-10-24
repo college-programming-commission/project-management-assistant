@@ -69,7 +69,4 @@ class Supervisor extends Model
     {
         return $query->where('slot_count', '<=', $slots);
     }
-
-
-
 }

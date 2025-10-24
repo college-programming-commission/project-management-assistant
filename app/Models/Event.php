@@ -2,7 +2,7 @@
 
 namespace Alison\ProjectManagementAssistant\Models;
 
-use Alison\ProjectManagementAssistant\Services\MarkdownService;
+use Alison\ProjectManagementAssistant\Models\Concerns\HasMarkdownFields;
 use Database\Factories\EventFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -18,7 +18,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Event extends Model
 {
     /** @use HasFactory<EventFactory> */
-    use HasFactory, HasUlids;
+    use HasFactory;
+    use HasMarkdownFields;
+    use HasUlids;
 
     protected $appends = ['image_url'];
 
@@ -52,16 +54,6 @@ class Event extends Model
         return $query->where('category_id', $categoryId);
     }
 
-    /**
-     * Get the route key for the model.
-     *
-     * @return string
-     */
-    public function getRouteKeyName()
-    {
-        return 'id';
-    }
-
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('end_date', '>=', now());
@@ -87,66 +79,36 @@ class Event extends Model
         return $query->whereBetween('start_date', [$startDate, $endDate]);
     }
 
-    /**
-     * Get the full URL for the event image.
-     *
-     * @return string|null
-     */
     public function getImageUrlAttribute(): ?string
     {
         if (empty($this->image)) {
             return null;
         }
 
-        // Якщо це вже повний URL, повертаємо як є
+
         if (filter_var($this->image, FILTER_VALIDATE_URL)) {
             return $this->image;
         }
 
-        // Видаляємо початковий слеш, якщо він є
+
         $path = ltrim($this->image, '/');
 
-        // Якщо шлях вже містить 'storage/', додаємо лише початковий слеш
+
         if (str_starts_with($path, 'storage/')) {
             return '/' . $path;
         }
 
-        // В іншому випадку додаємо 'storage/' на початок
+
         return '/storage/' . $path;
     }
 
-    /**
-     * Отримати HTML версію опису
-     */
     protected function descriptionHtml(): Attribute
     {
-        return Attribute::make(
-            get: function () {
-                if (empty($this->description)) {
-                    return '';
-                }
-
-                $markdownService = app(MarkdownService::class);
-                return $markdownService->toHtml($this->description);
-            }
-        );
+        return $this->markdownToHtml('description');
     }
 
-    /**
-     * Отримати попередній перегляд опису
-     */
     protected function descriptionPreview(): Attribute
     {
-        return Attribute::make(
-            get: function () {
-                if (empty($this->description)) {
-                    return '';
-                }
-
-                $markdownService = app(MarkdownService::class);
-                return $markdownService->getPreview($this->description);
-            }
-        );
+        return $this->markdownPreview('description');
     }
-
 }
